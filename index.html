@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marin Production Group | Video Production & AI-Accelerated Content</title>
+    <meta name="description" content="Combining 30 years of creative storytelling with AI-accelerated production workflows. Documentary to digital content for modern brands.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background-color: #0a0a0a;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 188, 212, 0.2);
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #00bcd4;
+            text-decoration: none;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #00bcd4;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 6rem 0;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 188, 212, 0.1) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #ffffff;
+            letter-spacing: -1px;
+        }
+
+        .hero .tagline {
+            font-size: 1.5rem;
+            color: #00bcd4;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .hero .supporting {
+            font-size: 1.1rem;
+            color: #b0b0b0;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #00bcd4;
+            color: #0a0a0a;
+        }
+
+        .btn-primary:hover {
+            background: #00acc1;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 188, 212, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #00bcd4;
+            border: 2px solid #00bcd4;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 188, 212, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: #00bcd4;
+            margin: 1rem auto 0;
+        }
+
+        /* Services Section */
+        #services {
+            background: #0f0f0f;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .service-card {
+            background: #1a1a1a;
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 188, 212, 0.2);
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            border-color: #00bcd4;
+            box-shadow: 0 10px 40px rgba(0, 188, 212, 0.2);
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #00bcd4;
+        }
+
+        .service-card p {
+            color: #b0b0b0;
+            line-height: 1.8;
+        }
+
+        /* Portfolio Section */
+        #work {
+            background: #0a0a0a;
+        }
+
+        .portfolio-item {
+            margin-bottom: 5rem;
+        }
+
+        .portfolio-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .portfolio-item h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .portfolio-meta {
+            color: #b0b0b0;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .portfolio-views {
+            color: #00bcd4;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .portfolio-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(0, 188, 212, 0.3), transparent);
+            margin: 4rem 0;
+        }
+
+        /* About Section */
+        #about {
+            background: #0f0f0f;
+        }
+
+        .about-content {
+            max-width: 900px;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            line-height: 2;
+            color: #b0b0b0;
+        }
+
+        .about-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .about-highlight {
+            color: #00bcd4;
+            font-weight: 600;
+        }
+
+        /* Contact Section */
+        #contact {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            text-align: center;
+        }
+
+        .contact-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .contact-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            color: #b0b0b0;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: #1a1a1a;
+            border: 1px solid #00bcd4;
+            border-radius: 8px;
+            color: #00bcd4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .contact-link:hover {
+            background: #00bcd4;
+            color: #0a0a0a;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 188, 212, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: #0a0a0a;
+            padding: 2rem 0;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid rgba(0, 188, 212, 0.2);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.2rem;
+            }
+
+            .hero .supporting {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            nav ul {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(10, 10, 10, 0.98);
+                padding: 2rem;
+                gap: 1rem;
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                text-align: center;
+            }
+
+            section {
+                padding: 4rem 0;
+            }
+
+            .portfolio-item h3 {
+                font-size: 1.5rem;
+            }
+
+            .about-content {
+                font-size: 1.1rem;
+            }
+
+            .contact-links {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .service-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <a href="#home" class="logo">Marin Production Group</a>
+            <button class="mobile-menu-toggle" onclick="toggleMenu()">☰</button>
+            <ul id="nav-menu">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#work">Work</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Marin Production Group</h1>
+            <p class="tagline">Combining 30 years of creative storytelling with AI-accelerated production workflows</p>
+            <p class="supporting">From documentary to digital content, we help brands create compelling video experiences.</p>
+            <div class="cta-buttons">
+                <a href="#work" class="btn btn-primary">View Work</a>
+                <a href="#contact" class="btn btn-secondary">Let's Connect</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services">
+        <div class="container">
+            <h2 class="section-title">What We Do</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>Video Production & Editing</h3>
+                    <p>Documentary, branded content, digital storytelling</p>
+                    <p>30+ years of editorial expertise</p>
+                </div>
+                <div class="service-card">
+                    <h3>AI-Accelerated Content Creation</h3>
+                    <p>Generative video, AI workflows, rapid prototyping</p>
+                    <p>Cutting-edge tools for modern content demands</p>
+                </div>
+                <div class="service-card">
+                    <h3>Content Strategy & Marketing</h3>
+                    <p>Copywriting, concept development, marketing strategy</p>
+                    <p>From idea to execution</p>
+                </div>
+                <div class="service-card">
+                    <h3>Creative Services</h3>
+                    <p>Graphic design, visual identity, creative direction</p>
+                    <p>Comprehensive brand support</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="work">
+        <div class="container">
+            <h2 class="section-title">Featured Work</h2>
+
+            <!-- High-Profile Work -->
+            <div class="portfolio-item">
+                <h3>BackBone Pro - Gaming Controller Product Launch</h3>
+                <p class="portfolio-meta">Video Editor, Post-Production, Story Development</p>
+                <p class="portfolio-views">2.8M views</p>
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/fY2eCT0aFos" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div class="portfolio-divider"></div>
+
+            <div class="portfolio-item">
+                <h3>Sandy Vans / SVTV - Episodes 1 & 2</h3>
+                <p class="portfolio-meta">Video Editor, Post-Production, Generative Video, Story Development</p>
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/--r-Yy0XDyg" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div class="portfolio-divider"></div>
+
+            <div class="portfolio-item">
+                <h3>Fountainhead Antique Auto Museum</h3>
+                <p class="portfolio-meta">Video Editor, Post-Production, Story Development</p>
+                <p class="portfolio-views">100K+ views on YouTube | Millions of views across platforms</p>
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/TEdH7kEMWGw" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div class="portfolio-divider"></div>
+
+            <!-- Additional Work -->
+            <div class="portfolio-item">
+                <h3>Kaster Builders - Lands of Aiko Custom Home</h3>
+                <p class="portfolio-meta">Architectural documentation & branded content</p>
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/gnh-j3v8tx8" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div class="portfolio-divider"></div>
+
+            <div class="portfolio-item">
+                <h3>TLC Tree Landscape Care</h3>
+                <p class="portfolio-meta">Corporate video production</p>
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/YGpXtl2RYyA" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div class="portfolio-divider"></div>
+
+            <div class="portfolio-item">
+                <h3>Personalized Lifestyle Medicine Institute</h3>
+                <p class="portfolio-meta">Medical/healthcare corporate content</p>
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/4ZUIXFG44As" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <h2 class="section-title">About</h2>
+            <div class="about-content">
+                <p>With <span class="about-highlight">30+ years in video production and creative storytelling</span>, Marin Production Group has evolved from traditional documentary filmmaking to cutting-edge AI-accelerated workflows and generative video production.</p>
+
+                <p>Notable work includes the Fountainhead Antique Auto Museum documentaries, content for PLMI (Personalized Lifestyle Medicine Institute), GrowthX AI content strategy, and the viral BackBone Pro video that garnered <span class="about-highlight">2.8 million views</span>.</p>
+
+                <p>Our current focus is helping brands adapt to the modern content landscape through <span class="about-highlight">AI-enhanced production workflows</span> that combine decades of storytelling expertise with the latest technological innovations.</p>
+
+                <p>Based in <span class="about-highlight">Marin County, California</span>, our expertise spans video editing, documentary filmmaking, content strategy, copywriting, marketing, and AI-powered creative workflows.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="container">
+            <h2 class="section-title">Let's Connect</h2>
+            <div class="contact-content">
+                <p>Ready to discuss your next project? Let's connect.</p>
+                <div class="contact-links">
+                    <a href="https://www.linkedin.com/in/brandon-hatch-5984b4278/" target="_blank" class="contact-link">
+                        <span>LinkedIn</span>
+                    </a>
+                    <a href="mailto:brandon.ds.hatch@gmail.com" class="contact-link">
+                        <span>Email</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Marin Production Group. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('nav-menu');
+            menu.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                const menu = document.getElementById('nav-menu');
+                menu.classList.remove('active');
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const nav = document.querySelector('nav');
+            const menu = document.getElementById('nav-menu');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+
+            if (!nav.contains(e.target) && menu.classList.contains('active')) {
+                menu.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
