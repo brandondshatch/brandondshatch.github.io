@@ -21,6 +21,27 @@
             line-height: 1.6;
             color: #ffffff;
             background-color: #000000;
+            position: relative;
+        }
+
+        /* Background videos */
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            transition: opacity 1s ease-in-out;
+        }
+
+        #hero-video {
+            z-index: -1;
+        }
+
+        #flicker-video {
+            opacity: 0;
         }
 
         /* Navigation */
@@ -87,16 +108,6 @@
             overflow: hidden;
         }
 
-        .hero-video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-        }
-
         .hero-overlay {
             position: absolute;
             top: 0;
@@ -114,13 +125,18 @@
             padding: 0 2rem;
         }
 
-        .hero h1 {
-            font-size: 5rem;
-            font-weight: 700;
-            margin-bottom: 0;
+        .hero-logo {
+            width: 600px;
+            max-width: 90%;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+
+        .hero-tagline {
+            font-size: 1.8rem;
+            font-weight: 300;
             color: #ffffff;
-            letter-spacing: -2px;
-            line-height: 1.1;
+            letter-spacing: 0.5px;
         }
 
         .scroll-indicator {
@@ -154,29 +170,8 @@
         }
 
         section {
-            padding: 8rem 0;
+            padding: 3rem 0;
             position: relative;
-        }
-
-        /* Node connections */
-        .node-line {
-            position: absolute;
-            width: 2px;
-            background: #ffffff;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1;
-        }
-
-        .node-dot {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: #ffffff;
-            border-radius: 50%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
         }
 
         /* Section boxes */
@@ -184,7 +179,7 @@
             border: 1px solid #444444;
             border-radius: 12px;
             padding: 3rem;
-            background: rgba(0, 0, 0, 0.6);
+            background: #000000;
             position: relative;
             z-index: 10;
         }
@@ -193,13 +188,15 @@
         .section-title {
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 2rem;
-            color: #ffffff;
+            margin-bottom: 1rem;
+            color: rgb(230, 247, 252); /* c:10 m:3 y:1 k:0 converted to RGB */
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #444444;
         }
 
         /* What I Do Section */
         #what-i-do {
-            background: #000000;
+            background: transparent;
         }
 
         .what-i-do-intro {
@@ -219,12 +216,12 @@
 
         /* How I Work Section */
         #how-i-work {
-            background: #000000;
+            background: transparent;
         }
 
         .how-i-work-content {
             display: grid;
-            grid-template-columns: 1fr 300px;
+            grid-template-columns: 1fr 400px;
             gap: 3rem;
             align-items: start;
         }
@@ -234,11 +231,10 @@
         }
 
         .brandon-image {
-            width: 300px;
-            height: 300px;
-            border-radius: 12px;
+            width: 400px;
+            height: 400px;
             object-fit: cover;
-            border: 1px solid #444444;
+            opacity: 0.9;
         }
 
         .work-philosophy {
@@ -288,7 +284,7 @@
 
         /* Tools Section */
         #tools {
-            background: #000000;
+            background: transparent;
         }
 
         .tools-grid {
@@ -309,6 +305,7 @@
         .tools-column ul {
             list-style: none;
             padding: 0;
+            text-align: center;
         }
 
         .tools-column li {
@@ -319,7 +316,7 @@
 
         /* Portfolio Section */
         #work {
-            background: #000000;
+            background: transparent;
         }
 
         .portfolio-grid {
@@ -409,7 +406,7 @@
 
         /* What Clients Get Section */
         #clients {
-            background: #000000;
+            background: transparent;
         }
 
         .clients-list {
@@ -445,7 +442,7 @@
 
         /* Contact Section */
         #contact {
-            background: #000000;
+            background: transparent;
             text-align: center;
         }
 
@@ -485,6 +482,8 @@
             text-align: center;
             color: #666;
             border-top: 1px solid #222222;
+            position: relative;
+            z-index: 10;
         }
 
         /* Mobile Menu Toggle */
@@ -524,8 +523,12 @@
                 display: block;
             }
 
-            .hero h1 {
-                font-size: 3rem;
+            .hero-logo {
+                width: 400px;
+            }
+
+            .hero-tagline {
+                font-size: 1.3rem;
             }
 
             .section-title {
@@ -537,7 +540,7 @@
             }
 
             section {
-                padding: 5rem 0;
+                padding: 2rem 0;
             }
 
             .section-box {
@@ -559,7 +562,8 @@
 
             .brandon-image {
                 width: 100%;
-                max-width: 300px;
+                max-width: 400px;
+                height: auto;
                 margin: 0 auto;
             }
 
@@ -586,12 +590,16 @@
                 padding: 0 1rem;
             }
 
-            .hero h1 {
-                font-size: 2.5rem;
+            .hero-logo {
+                width: 300px;
+            }
+
+            .hero-tagline {
+                font-size: 1.1rem;
             }
 
             section {
-                padding: 4rem 0;
+                padding: 1.5rem 0;
             }
 
             .section-box {
@@ -601,6 +609,14 @@
     </style>
 </head>
 <body>
+    <!-- Background Videos -->
+    <video autoplay muted loop playsinline class="background-video" id="hero-video">
+        <source src="./video/bh_reel.mp4" type="video/mp4">
+    </video>
+    <video autoplay muted loop playsinline class="background-video" id="flicker-video">
+        <source src="./video/flicker.mp4" type="video/mp4">
+    </video>
+
     <!-- Navigation -->
     <nav>
         <div class="container">
@@ -618,13 +634,10 @@
 
     <!-- Hero Section with Video Background -->
     <section id="home" class="hero">
-        <video autoplay muted loop playsinline class="hero-video" id="hero-video">
-            <source src="./video/bh_reel.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1>Brandon Hatch | Editor & Story Architect</h1>
+            <img src="./page images/logo.png" alt="Brandon Hatch" class="hero-logo">
+            <p class="hero-tagline">Editor & Story Architect</p>
         </div>
         <div class="scroll-indicator">↓ Scroll</div>
     </section>
@@ -916,57 +929,41 @@
             }
         });
 
-        // Ensure video plays
+        // Handle video transitions and playback
         document.addEventListener('DOMContentLoaded', function() {
-            const video = document.getElementById('hero-video');
-            if (video) {
-                video.play().catch(function(error) {
-                    console.log('Video autoplay failed:', error);
+            const heroVideo = document.getElementById('hero-video');
+            const flickerVideo = document.getElementById('flicker-video');
+
+            // Ensure both videos start playing
+            if (heroVideo) {
+                heroVideo.play().catch(function(error) {
+                    console.log('Hero video autoplay failed:', error);
                 });
             }
 
-            // Create animated connecting lines between sections
-            createNodeConnections();
+            if (flickerVideo) {
+                flickerVideo.play().catch(function(error) {
+                    console.log('Flicker video autoplay failed:', error);
+                });
+            }
 
-            // Animate node lines on scroll
-            window.addEventListener('scroll', animateNodeLines);
-        });
+            // Handle video transitions on scroll
+            window.addEventListener('scroll', function() {
+                const scrollPosition = window.scrollY;
+                const heroSection = document.getElementById('home');
+                const heroHeight = heroSection.offsetHeight;
 
-        function createNodeConnections() {
-            const sections = document.querySelectorAll('section[id]:not(#home)');
-
-            sections.forEach((section, index) => {
-                if (index < sections.length - 1) {
-                    const nextSection = sections[index + 1];
-                    const line = document.createElement('div');
-                    line.className = 'node-line';
-                    line.style.top = '0';
-                    line.style.height = '100px';
-
-                    const dot1 = document.createElement('div');
-                    dot1.className = 'node-dot';
-                    dot1.style.top = '-6px';
-
-                    const dot2 = document.createElement('div');
-                    dot2.className = 'node-dot';
-                    dot2.style.bottom = '-106px';
-
-                    nextSection.appendChild(line);
-                    nextSection.appendChild(dot1);
-                    nextSection.appendChild(dot2);
+                // Calculate opacity based on scroll position
+                if (scrollPosition > heroHeight * 0.5) {
+                    const fadeProgress = Math.min((scrollPosition - heroHeight * 0.5) / (heroHeight * 0.3), 1);
+                    heroVideo.style.opacity = 1 - fadeProgress;
+                    flickerVideo.style.opacity = fadeProgress;
+                } else {
+                    heroVideo.style.opacity = 1;
+                    flickerVideo.style.opacity = 0;
                 }
             });
-        }
-
-        function animateNodeLines() {
-            const lines = document.querySelectorAll('.node-line');
-            const scrollPosition = window.scrollY;
-
-            lines.forEach((line, index) => {
-                const offset = Math.sin(scrollPosition * 0.005 + index) * 3;
-                line.style.transform = `translateX(calc(-50% + ${offset}px))`;
-            });
-        }
+        });
     </script>
 </body>
 </html>
