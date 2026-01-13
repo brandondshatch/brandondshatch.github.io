@@ -404,6 +404,22 @@
             line-height: 1.6;
         }
 
+        /* Shorts Grid */
+        .shorts-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .portfolio-card-short {
+            max-width: 280px;
+        }
+
+        .portfolio-icon-short {
+            height: 400px;
+        }
+
         /* What Clients Get Section */
         #clients {
             background: transparent;
@@ -552,6 +568,14 @@
                 gap: 2rem;
             }
 
+            .shorts-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .portfolio-card-short {
+                max-width: 100%;
+            }
+
             .what-i-do-intro {
                 font-size: 1.5rem;
             }
@@ -604,6 +628,10 @@
 
             .section-box {
                 padding: 1.5rem;
+            }
+
+            .shorts-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -817,6 +845,36 @@
                         </div>
                     </a>
 
+                    <a href="https://www.youtube.com/watch?v=rgjRjm4o9Lc" target="_blank" class="portfolio-card">
+                        <div class="portfolio-icon">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">Agile Offroad Brand Story</h3>
+                            <p class="portfolio-role">Video Editor, Post-Production, Story Development</p>
+                            <p class="portfolio-description">Brand narrative and storytelling</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.youtube.com/watch?v=vIwhKNuMaFA" target="_blank" class="portfolio-card">
+                        <div class="portfolio-icon">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">AI Led Growth In-Studio Podcasts</h3>
+                            <p class="portfolio-role">Video Editor</p>
+                            <p class="portfolio-description">Podcast editing and production</p>
+                        </div>
+                    </a>
+
                     <a href="https://www.youtube.com/watch?v=YGpXtl2RYyA" target="_blank" class="portfolio-card">
                         <div class="portfolio-icon">
                             <div class="play-icon">
@@ -847,6 +905,62 @@
                         </div>
                     </a>
 
+                </div>
+
+                <!-- Shorts Section -->
+                <h3 style="margin-top: 4rem; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 600; color: #ffffff;">Shorts</h3>
+                <div class="shorts-grid">
+                    <a href="https://www.youtube.com/shorts/WBhZx1Ei5ao" target="_blank" class="portfolio-card portfolio-card-short">
+                        <div class="portfolio-icon portfolio-icon-short">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">AI Led Growth</h3>
+                        </div>
+                    </a>
+
+                    <a href="https://youtube.com/shorts/n6wZTi1FCIw" target="_blank" class="portfolio-card portfolio-card-short">
+                        <div class="portfolio-icon portfolio-icon-short">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">ESI Alaska</h3>
+                        </div>
+                    </a>
+
+                    <a href="https://youtube.com/shorts/m1nY3ubVp8A" target="_blank" class="portfolio-card portfolio-card-short">
+                        <div class="portfolio-icon portfolio-icon-short">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">FAAM - 1926 Fordson Snow Motor</h3>
+                        </div>
+                    </a>
+
+                    <a href="https://www.youtube.com/shorts/yCDEnZSyGEw" target="_blank" class="portfolio-card portfolio-card-short">
+                        <div class="portfolio-icon portfolio-icon-short">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">FAAM - De Dion-Bouton</h3>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
