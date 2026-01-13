@@ -40,16 +40,8 @@
             margin: 0 auto;
             padding: 0 3rem;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-        }
-
-        nav .logo {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #ffffff;
-            text-decoration: none;
-            letter-spacing: 0.5px;
         }
 
         nav ul {
@@ -118,28 +110,17 @@
         .hero-content {
             position: relative;
             z-index: 1;
-            max-width: 900px;
+            max-width: 1000px;
             padding: 0 2rem;
         }
 
         .hero h1 {
             font-size: 5rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0;
             color: #ffffff;
             letter-spacing: -2px;
             line-height: 1.1;
-        }
-
-        .hero .tagline {
-            font-size: 1.5rem;
-            color: #ffffff;
-            margin-bottom: 3rem;
-            font-weight: 300;
-            line-height: 1.5;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
         }
 
         .scroll-indicator {
@@ -174,13 +155,45 @@
 
         section {
             padding: 8rem 0;
+            position: relative;
+        }
+
+        /* Node connections */
+        .node-line {
+            position: absolute;
+            width: 2px;
+            background: #ffffff;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .node-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        /* Section boxes */
+        .section-box {
+            border: 1px solid #444444;
+            border-radius: 12px;
+            padding: 3rem;
+            background: rgba(0, 0, 0, 0.6);
+            position: relative;
+            z-index: 10;
         }
 
         /* Section Titles */
         .section-title {
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 4rem;
+            margin-bottom: 2rem;
             color: #ffffff;
         }
 
@@ -191,22 +204,41 @@
 
         .what-i-do-intro {
             font-size: 2rem;
-            line-height: 1.6;
-            margin-bottom: 3rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
             font-weight: 300;
             color: #ffffff;
         }
 
         .what-i-do-description {
             font-size: 1.2rem;
-            line-height: 1.8;
+            line-height: 1.6;
             color: #cccccc;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
 
         /* How I Work Section */
         #how-i-work {
-            background: #0a0a0a;
+            background: #000000;
+        }
+
+        .how-i-work-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .how-i-work-text {
+            flex: 1;
+        }
+
+        .brandon-image {
+            width: 300px;
+            height: 300px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid #444444;
         }
 
         .work-philosophy {
@@ -218,19 +250,19 @@
 
         .work-description {
             font-size: 1.2rem;
-            line-height: 1.8;
+            line-height: 1.6;
             color: #cccccc;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         .skills-section {
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         .skills-title {
             font-size: 1.3rem;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             color: #ffffff;
         }
 
@@ -241,7 +273,7 @@
 
         .skills-list li {
             font-size: 1.1rem;
-            padding: 0.5rem 0;
+            padding: 0.25rem 0;
             color: #cccccc;
             padding-left: 1.5rem;
             position: relative;
@@ -254,23 +286,35 @@
             color: #ffffff;
         }
 
-        .ai-section {
-            background: #111111;
-            padding: 2rem;
-            border-radius: 8px;
-            margin-top: 3rem;
+        /* Tools Section */
+        #tools {
+            background: #000000;
         }
 
-        .ai-section h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #ffffff;
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
         }
 
-        .ai-section p {
-            font-size: 1.2rem;
+        .tools-column {
+            padding: 1rem 2rem;
+            border-right: 1px solid #444444;
+        }
+
+        .tools-column:last-child {
+            border-right: none;
+        }
+
+        .tools-column ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tools-column li {
+            font-size: 1.1rem;
+            padding: 0.5rem 0;
             color: #cccccc;
-            line-height: 1.8;
         }
 
         /* Portfolio Section */
@@ -282,12 +326,12 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 3rem;
-            margin-top: 3rem;
+            margin-top: 2rem;
         }
 
         .portfolio-card {
             background: #0a0a0a;
-            border: 1px solid #222222;
+            border: 1px solid #444444;
             border-radius: 8px;
             overflow: hidden;
             transition: all 0.3s;
@@ -296,7 +340,7 @@
 
         .portfolio-card:hover {
             transform: translateY(-5px);
-            border-color: #444444;
+            border-color: #666666;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
@@ -365,14 +409,7 @@
 
         /* What Clients Get Section */
         #clients {
-            background: #0a0a0a;
-        }
-
-        .clients-intro {
-            font-size: 1.2rem;
-            line-height: 1.8;
-            color: #cccccc;
-            margin-bottom: 2rem;
+            background: #000000;
         }
 
         .clients-list {
@@ -382,7 +419,7 @@
 
         .clients-list li {
             font-size: 1.1rem;
-            padding: 0.75rem 0;
+            padding: 0.25rem 0;
             color: #cccccc;
             padding-left: 1.5rem;
             position: relative;
@@ -396,13 +433,13 @@
         }
 
         .valuable-section {
-            margin-top: 3rem;
+            margin-top: 2rem;
         }
 
         .valuable-section h3 {
             font-size: 1.3rem;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             color: #ffffff;
         }
 
@@ -464,6 +501,7 @@
         @media (max-width: 968px) {
             nav .container {
                 padding: 0 2rem;
+                justify-content: space-between;
             }
 
             nav ul {
@@ -490,10 +528,6 @@
                 font-size: 3rem;
             }
 
-            .hero .tagline {
-                font-size: 1.2rem;
-            }
-
             .section-title {
                 font-size: 2rem;
             }
@@ -506,6 +540,10 @@
                 padding: 5rem 0;
             }
 
+            .section-box {
+                padding: 2rem;
+            }
+
             .portfolio-grid {
                 grid-template-columns: 1fr;
                 gap: 2rem;
@@ -513,6 +551,29 @@
 
             .what-i-do-intro {
                 font-size: 1.5rem;
+            }
+
+            .how-i-work-content {
+                grid-template-columns: 1fr;
+            }
+
+            .brandon-image {
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tools-column {
+                border-right: none;
+                border-bottom: 1px solid #444444;
+            }
+
+            .tools-column:last-child {
+                border-bottom: none;
             }
         }
 
@@ -529,12 +590,12 @@
                 font-size: 2.5rem;
             }
 
-            .hero .tagline {
-                font-size: 1.1rem;
-            }
-
             section {
                 padding: 4rem 0;
+            }
+
+            .section-box {
+                padding: 1.5rem;
             }
         }
     </style>
@@ -543,11 +604,11 @@
     <!-- Navigation -->
     <nav>
         <div class="container">
-            <a href="#home" class="logo">BRANDON HATCH</a>
             <button class="mobile-menu-toggle" onclick="toggleMenu()">☰</button>
             <ul id="nav-menu">
                 <li><a href="#what-i-do">What I Do</a></li>
                 <li><a href="#how-i-work">How I Work</a></li>
+                <li><a href="#tools">Tools</a></li>
                 <li><a href="#work">Work</a></li>
                 <li><a href="#clients">Clients</a></li>
                 <li><a href="#contact" class="cta-btn">Book a Call</a></li>
@@ -563,8 +624,7 @@
         </video>
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1>Editor & Story Architect</h1>
-            <p class="tagline">Shaping complex material into clear, emotionally resonant stories</p>
+            <h1>Brandon Hatch | Editor & Story Architect</h1>
         </div>
         <div class="scroll-indicator">↓ Scroll</div>
     </section>
@@ -572,54 +632,110 @@
     <!-- What I Do Section -->
     <section id="what-i-do">
         <div class="container">
-            <h2 class="section-title">What I Do</h2>
-            <p class="what-i-do-intro">I shape complex scripted and unscripted material into clear, emotionally resonant stories.</p>
-            <p class="what-i-do-description">My work lives at the intersection of documentary, branded content, and emerging AI-assisted production—where interviews are authentic, emotion is paramount, and meaning is discovered and not imposed.</p>
-            <p class="what-i-do-description">I'm an editor that thinks like a storyteller, a director enthralled with my interviewees, and a systems designer that automates mundanity and spotlights humanity.</p>
+            <div class="section-box">
+                <h2 class="section-title">What I Do</h2>
+                <p class="what-i-do-intro">I shape complex scripted and unscripted material into clear, emotionally resonant stories.</p>
+                <p class="what-i-do-description">My work lives at the intersection of documentary, branded content, and emerging AI-assisted production—where interviews are authentic, emotion is paramount, and meaning is discovered and not imposed.</p>
+                <p class="what-i-do-description">I'm an editor that thinks like a storyteller, a director enthralled with my interviewees, and a systems designer that automates mundanity and spotlights humanity.</p>
+            </div>
         </div>
     </section>
 
     <!-- How I Work Section -->
     <section id="how-i-work">
         <div class="container">
-            <h2 class="section-title">How I Work</h2>
+            <div class="section-box">
+                <h2 class="section-title">How I Work</h2>
 
-            <h3 class="work-philosophy">I start with meaning, not mechanics</h3>
-            <p class="work-description">I look for arc, contrast, implication, and subtext before I touch pacing, music, or polish. My first pass is about what the piece is really saying.</p>
+                <div class="how-i-work-content">
+                    <div class="how-i-work-text">
+                        <h3 class="work-philosophy">I start with meaning, not mechanics</h3>
+                        <p class="work-description">I look for arc, contrast, implication, and subtext before I touch pacing, music, or polish. My first pass is about what the piece is really saying.</p>
 
-            <div class="skills-section">
-                <h4 class="skills-title">I'm especially strong at:</h4>
-                <ul class="skills-list">
-                    <li>Story & concept</li>
-                    <li>Finding narrative shape in long interviews</li>
-                    <li>Re-ordering quotes without distorting truth</li>
-                    <li>Clarifying intent and discovering heart</li>
-                </ul>
+                        <div class="skills-section">
+                            <h4 class="skills-title">I'm especially strong at:</h4>
+                            <ul class="skills-list">
+                                <li>Story & concept</li>
+                                <li>Finding narrative shape in long interviews</li>
+                                <li>Re-ordering quotes without distorting truth</li>
+                                <li>Clarifying intent and discovering heart</li>
+                            </ul>
+                        </div>
+
+                        <p class="work-description">Reality-style, multi-camera, vlogs, field recordings, archival, and generative—all in service of story.</p>
+
+                        <div class="skills-section">
+                            <h4 class="skills-title">I routinely handle:</h4>
+                            <ul class="skills-list">
+                                <li>Lengthy source interviews</li>
+                                <li>Proxy workflows, cloud collaboration, and creative pivots</li>
+                                <li>Heavy revision without compromising narrative integrity</li>
+                            </ul>
+                        </div>
+
+                        <div class="skills-section">
+                            <h4 class="skills-title">I design processes workflows using:</h4>
+                            <ul class="skills-list">
+                                <li>Transcription-driven editing</li>
+                                <li>AI-assisted analysis for structure, fact-checking, and story refinement</li>
+                                <li>Clear handoffs between shooters, editors, and stakeholders</li>
+                            </ul>
+                        </div>
+
+                        <div class="skills-section">
+                            <h4 class="skills-title">Where AI Fits (and Where It Doesn't)</h4>
+                            <p class="work-description">I use AI as an accelerant not as a crutch.</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <img src="./page images/brandon.jpg" alt="Brandon Hatch" class="brandon-image">
+                    </div>
+                </div>
             </div>
+        </div>
+    </section>
 
-            <p class="work-description">Reality-style, multi-camera, vlogs, field recordings, archival, and generative—all in service of story.</p>
-
-            <div class="skills-section">
-                <h4 class="skills-title">I routinely handle:</h4>
-                <ul class="skills-list">
-                    <li>Lengthy source interviews</li>
-                    <li>Proxy workflows, cloud collaboration, and creative pivots</li>
-                    <li>Heavy revision without compromising narrative integrity</li>
-                </ul>
-            </div>
-
-            <div class="skills-section">
-                <h4 class="skills-title">I design processes workflows using:</h4>
-                <ul class="skills-list">
-                    <li>Transcription-driven editing</li>
-                    <li>AI-assisted analysis for structure, fact-checking, and story refinement</li>
-                    <li>Clear handoffs between shooters, editors, and stakeholders</li>
-                </ul>
-            </div>
-
-            <div class="ai-section">
-                <h3>Where AI Fits (and Where It Doesn't)</h3>
-                <p>I use AI as an accelerant not as a crutch.</p>
+    <!-- Tools Section -->
+    <section id="tools">
+        <div class="container">
+            <div class="section-box">
+                <h2 class="section-title">Tools I Use</h2>
+                <div class="tools-grid">
+                    <div class="tools-column">
+                        <ul>
+                            <li>DaVinci Resolve</li>
+                            <li>Final Cut Pro</li>
+                            <li>AfterEffects</li>
+                            <li>Descript</li>
+                            <li>Veo</li>
+                            <li>Runway</li>
+                            <li>Topaz</li>
+                        </ul>
+                    </div>
+                    <div class="tools-column">
+                        <ul>
+                            <li>Sora</li>
+                            <li>Nano Banana</li>
+                            <li>Suno</li>
+                            <li>Photoshop</li>
+                            <li>Illustrator</li>
+                            <li>Kling</li>
+                            <li>Flux</li>
+                        </ul>
+                    </div>
+                    <div class="tools-column">
+                        <ul>
+                            <li>Final Draft</li>
+                            <li>Claude</li>
+                            <li>Gemini</li>
+                            <li>ChatGPT</li>
+                            <li>frame.io</li>
+                            <li>Keynote</li>
+                            <li>ElevenLabs</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -627,101 +743,103 @@
     <!-- Portfolio Section -->
     <section id="work">
         <div class="container">
-            <h2 class="section-title">Featured Work</h2>
-            <div class="portfolio-grid">
+            <div class="section-box">
+                <h2 class="section-title">Featured Work</h2>
+                <div class="portfolio-grid">
 
-                <a href="https://www.youtube.com/watch?v=fY2eCT0aFos" target="_blank" class="portfolio-card">
-                    <div class="portfolio-icon">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
+                    <a href="https://www.youtube.com/watch?v=fY2eCT0aFos" target="_blank" class="portfolio-card">
+                        <div class="portfolio-icon">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
                         </div>
-                    </div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-title">BackBone Pro</h3>
-                        <p class="portfolio-role">Video Editor, Post-Production, Story Development</p>
-                        <p class="portfolio-views">2.8M views</p>
-                        <p class="portfolio-description">Gaming controller product launch</p>
-                    </div>
-                </a>
-
-                <a href="https://www.youtube.com/watch?v=--r-Yy0XDyg" target="_blank" class="portfolio-card">
-                    <div class="portfolio-icon">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">BackBone Pro</h3>
+                            <p class="portfolio-role">Video Editor, Post-Production, Story Development</p>
+                            <p class="portfolio-views">2.8M views</p>
+                            <p class="portfolio-description">Gaming controller product launch</p>
                         </div>
-                    </div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-title">Sandy Vans / SVTV</h3>
-                        <p class="portfolio-role">Video Editor, Post-Production, Generative Video, Story Development</p>
-                        <p class="portfolio-description">Episodes 1 & 2</p>
-                    </div>
-                </a>
+                    </a>
 
-                <a href="https://www.youtube.com/watch?v=TEdH7kEMWGw" target="_blank" class="portfolio-card">
-                    <div class="portfolio-icon">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
+                    <a href="https://www.youtube.com/watch?v=--r-Yy0XDyg" target="_blank" class="portfolio-card">
+                        <div class="portfolio-icon">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
                         </div>
-                    </div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-title">Fountainhead Antique Auto Museum</h3>
-                        <p class="portfolio-role">Video Editor, Post-Production, Story Development</p>
-                        <p class="portfolio-views">100K+ views on YouTube | Millions across platforms</p>
-                        <p class="portfolio-description">Documentary series</p>
-                    </div>
-                </a>
-
-                <a href="https://www.youtube.com/watch?v=gnh-j3v8tx8" target="_blank" class="portfolio-card">
-                    <div class="portfolio-icon">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">Sandy Vans / SVTV</h3>
+                            <p class="portfolio-role">Video Editor, Post-Production, Generative Video, Story Development</p>
+                            <p class="portfolio-description">Episodes 1 & 2</p>
                         </div>
-                    </div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-title">Kasten Builders</h3>
-                        <p class="portfolio-role">Video Editor, Post-Production</p>
-                        <p class="portfolio-description">Lands of Aiko Custom Home - Architectural documentation & branded content</p>
-                    </div>
-                </a>
+                    </a>
 
-                <a href="https://www.youtube.com/watch?v=YGpXtl2RYyA" target="_blank" class="portfolio-card">
-                    <div class="portfolio-icon">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
+                    <a href="https://www.youtube.com/watch?v=TEdH7kEMWGw" target="_blank" class="portfolio-card">
+                        <div class="portfolio-icon">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
                         </div>
-                    </div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-title">TLC Tree Landscape Care</h3>
-                        <p class="portfolio-role">Video Editor, Post-Production</p>
-                        <p class="portfolio-description">Corporate video production</p>
-                    </div>
-                </a>
-
-                <a href="https://www.youtube.com/watch?v=4ZUIXFG44As" target="_blank" class="portfolio-card">
-                    <div class="portfolio-icon">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">Fountainhead Antique Auto Museum</h3>
+                            <p class="portfolio-role">Video Editor, Post-Production, Story Development</p>
+                            <p class="portfolio-views">100K+ views on YouTube | Millions across platforms</p>
+                            <p class="portfolio-description">Documentary series</p>
                         </div>
-                    </div>
-                    <div class="portfolio-info">
-                        <h3 class="portfolio-title">Personalized Lifestyle Medicine Institute</h3>
-                        <p class="portfolio-role">Video Editor, Post-Production</p>
-                        <p class="portfolio-description">Medical/healthcare corporate content</p>
-                    </div>
-                </a>
+                    </a>
 
+                    <a href="https://www.youtube.com/watch?v=gnh-j3v8tx8" target="_blank" class="portfolio-card">
+                        <div class="portfolio-icon">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">Kasten Builders</h3>
+                            <p class="portfolio-role">Video Editor, Post-Production</p>
+                            <p class="portfolio-description">Lands of Aiko Custom Home - Architectural documentation & branded content</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.youtube.com/watch?v=YGpXtl2RYyA" target="_blank" class="portfolio-card">
+                        <div class="portfolio-icon">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">TLC Tree Landscape Care</h3>
+                            <p class="portfolio-role">Video Editor, Post-Production</p>
+                            <p class="portfolio-description">Corporate video production</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.youtube.com/watch?v=4ZUIXFG44As" target="_blank" class="portfolio-card">
+                        <div class="portfolio-icon">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3 class="portfolio-title">Personalized Lifestyle Medicine Institute</h3>
+                            <p class="portfolio-role">Video Editor, Post-Production</p>
+                            <p class="portfolio-description">Medical/healthcare corporate content</p>
+                        </div>
+                    </a>
+
+                </div>
             </div>
         </div>
     </section>
@@ -729,21 +847,24 @@
     <!-- What Clients Get Section -->
     <section id="clients">
         <div class="container">
-            <h2 class="section-title">What Clients Get</h2>
-            <ul class="clients-list">
-                <li>Someone who can enter a project early, when things are still unclear</li>
-                <li>An editor who protects the story under pressure</li>
-                <li>A collaborator who can explain why something works—or doesn't</li>
-                <li>Finished pieces that feel considered, not assembled</li>
-            </ul>
-
-            <div class="valuable-section">
-                <h3 class="skills-title">I'm especially valuable when:</h3>
+            <div class="section-box">
+                <h2 class="section-title">What Clients Get</h2>
                 <ul class="clients-list">
-                    <li>The footage is abundant but the story isn't obvious</li>
-                    <li>The subject matter needs care</li>
-                    <li>The project needs emotional clarity and technical rigor</li>
+                    <li>Someone who can enter a project early, when things are still unclear</li>
+                    <li>Someone who can jump into a project that's stalled and bring it across the finish line</li>
+                    <li>An editor who protects the story under pressure</li>
+                    <li>A collaborator who brings out the best in others, respects their ideas, and loves elevating and teaching others</li>
+                    <li>Finished pieces that feel considered, not assembled</li>
                 </ul>
+
+                <div class="valuable-section">
+                    <h3 class="skills-title">I'm especially valuable when:</h3>
+                    <ul class="clients-list">
+                        <li>The footage is abundant but the story isn't obvious</li>
+                        <li>The subject matter needs care</li>
+                        <li>The project needs emotional clarity and technical rigor</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </section>
@@ -751,12 +872,14 @@
     <!-- Contact Section -->
     <section id="contact">
         <div class="container">
-            <h2 class="section-title">Let's Connect</h2>
-            <div class="contact-content">
-                <p>Ready to discuss your next project?</p>
-                <div class="contact-links">
-                    <a href="https://www.linkedin.com/in/brandon-hatch-5984b4278/" target="_blank" class="contact-link">LinkedIn</a>
-                    <a href="mailto:brandon.ds.hatch@gmail.com" class="contact-link">Email</a>
+            <div class="section-box">
+                <h2 class="section-title">Let's Connect</h2>
+                <div class="contact-content">
+                    <p>Ready to discuss your next project?</p>
+                    <div class="contact-links">
+                        <a href="https://www.linkedin.com/in/brandon-hatch-5984b4278/" target="_blank" class="contact-link">LinkedIn</a>
+                        <a href="mailto:brandon.ds.hatch@gmail.com" class="contact-link">Email</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -801,7 +924,49 @@
                     console.log('Video autoplay failed:', error);
                 });
             }
+
+            // Create animated connecting lines between sections
+            createNodeConnections();
+
+            // Animate node lines on scroll
+            window.addEventListener('scroll', animateNodeLines);
         });
+
+        function createNodeConnections() {
+            const sections = document.querySelectorAll('section[id]:not(#home)');
+
+            sections.forEach((section, index) => {
+                if (index < sections.length - 1) {
+                    const nextSection = sections[index + 1];
+                    const line = document.createElement('div');
+                    line.className = 'node-line';
+                    line.style.top = '0';
+                    line.style.height = '100px';
+
+                    const dot1 = document.createElement('div');
+                    dot1.className = 'node-dot';
+                    dot1.style.top = '-6px';
+
+                    const dot2 = document.createElement('div');
+                    dot2.className = 'node-dot';
+                    dot2.style.bottom = '-106px';
+
+                    nextSection.appendChild(line);
+                    nextSection.appendChild(dot1);
+                    nextSection.appendChild(dot2);
+                }
+            });
+        }
+
+        function animateNodeLines() {
+            const lines = document.querySelectorAll('.node-line');
+            const scrollPosition = window.scrollY;
+
+            lines.forEach((line, index) => {
+                const offset = Math.sin(scrollPosition * 0.005 + index) * 3;
+                line.style.transform = `translateX(calc(-50% + ${offset}px))`;
+            });
+        }
     </script>
 </body>
 </html>
