@@ -557,8 +557,8 @@
 
     <!-- Hero Section with Video Background -->
     <section id="home" class="hero">
-        <video autoplay muted loop playsinline class="hero-video">
-            <source src="video/bh_reel.mp4" type="video/mp4">
+        <video autoplay muted loop playsinline class="hero-video" id="hero-video">
+            <source src="./video/bh_reel.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
         <div class="hero-overlay"></div>
@@ -790,6 +790,16 @@
 
             if (!nav.contains(e.target) && menu.classList.contains('active')) {
                 menu.classList.remove('active');
+            }
+        });
+
+        // Ensure video plays
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('hero-video');
+            if (video) {
+                video.play().catch(function(error) {
+                    console.log('Video autoplay failed:', error);
+                });
             }
         });
     </script>
