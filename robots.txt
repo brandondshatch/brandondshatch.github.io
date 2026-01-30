@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://brandon-hatch.com/sitemap.xml
