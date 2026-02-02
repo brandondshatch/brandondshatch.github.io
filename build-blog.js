@@ -136,13 +136,15 @@ function buildBlog() {
         // Parse markdown to HTML
         const htmlContent = parseMarkdown(markdownContent);
         
-        // Format date
+        // Format date (parse as local date to avoid timezone issues)
         const date = frontmatter.date || new Date().toISOString().split('T')[0];
-        const dateObj = new Date(date);
+        const [year, month, day] = date.split('-').map(Number);
+        const dateObj = new Date(year, month - 1, day); // month is 0-indexed
         const dateFormatted = dateObj.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            day: 'numeric',
+            timeZone: 'America/Los_Angeles'
         });
         
         // Format tags
