@@ -1,6 +1,6 @@
 ---
 title: Welcome to My Blog
-date: 2026-02-01
+date: 2026-01-31
 excerpt: Starting a new space to share thoughts on video editing, storytelling, and the intersection of AI and creative work.
 tags: [meta, storytelling, AI]
 ---
