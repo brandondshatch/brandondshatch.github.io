@@ -414,8 +414,11 @@
                     const card = document.createElement('a');
                     card.href = `/blog/${post.slug}.html`;
                     card.className = 'blog-card';
-                    
-                    const date = new Date(post.date).toLocaleDateString('en-US', {
+
+                    // Parse date as local to avoid timezone issues
+                    const [year, month, day] = post.date.split('-').map(Number);
+                    const dateObj = new Date(year, month - 1, day);
+                    const date = dateObj.toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'
