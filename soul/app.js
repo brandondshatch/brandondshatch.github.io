@@ -3,7 +3,10 @@ const SESSION_KEY = "studio-deux-soul-unlocked";
 const LOCAL_STATE_KEY = "studio-deux-soul-state-v4";
 const CURRENT_MEMBER_KEY = "studio-deux-soul-current-member-v4";
 const ANSWER_LIMIT = 1500;
-const ASSET_VERSION = "20260426e";
+const ASSET_VERSION = "20260426f";
+const SUPABASE_URL = "https://lbcfkkmzkizwbhysehrg.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_zgn50C38LNlJUYtt0Ki2Xg_QqWgkcFd";
+const SUPABASE_TABLE = "soul_answers";
 
 function versionedAsset(path) {
   return `${path}?v=${ASSET_VERSION}`;
@@ -348,7 +351,110 @@ function loadCurrentMemberId() {
   }
 }
 
+function supabaseEnabled() {
+  return Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+}
+
+function supabaseHeaders(extra = {}) {
+  const headers = {
+    apikey: SUPABASE_PUBLISHABLE_KEY,
+    ...extra
+  };
+
+  if (SUPABASE_PUBLISHABLE_KEY.startsWith("eyJ")) {
+    headers.Authorization = `Bearer ${SUPABASE_PUBLISHABLE_KEY}`;
+  }
+
+  return headers;
+}
+
+async function supabaseRequest(path, options = {}) {
+  const baseUrl = SUPABASE_URL.replace(/\/$/, "");
+  const response = await fetch(`${baseUrl}/rest/v1/${path}`, {
+    ...options,
+    headers: supabaseHeaders(options.headers || {})
+  });
+
+  if (!response.ok) {
+    let message = `Supabase returned ${response.status}.`;
+    try {
+      const error = await response.json();
+      message = error.message || error.error || message;
+    } catch {
+      const text = await response.text();
+      if (text) message = text;
+    }
+    throw new Error(message);
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+}
+
+function stateFromSupabaseRows(rows) {
+  const state = defaultState();
+  let latestUpdate = state.updatedAt;
+
+  for (const row of rows || []) {
+    const member = STATIC_MEMBERS.find((item) => item.id === row.member_id);
+    const question = STATIC_QUESTIONS.find((item) => item.id === row.question_id);
+    if (!member || !question) continue;
+
+    const answer = typeof row.answer === "string" ? row.answer.slice(0, ANSWER_LIMIT) : "";
+    const updatedAt = row.updated_at || null;
+    state.answers[member.id][question.id] = { answer, updatedAt };
+
+    if (updatedAt && updatedAt > latestUpdate) {
+      latestUpdate = updatedAt;
+    }
+  }
+
+  state.updatedAt = latestUpdate;
+  if (getProgress(state).complete) {
+    state.markdownGeneratedAt = latestUpdate;
+  }
+
+  return normalizeState(state);
+}
+
+async function fetchSupabaseState() {
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?select=member_id,question_id,answer,updated_at`);
+  app.mode = "supabase";
+  app.members = STATIC_MEMBERS;
+  app.questions = STATIC_QUESTIONS;
+  app.answerLimit = ANSWER_LIMIT;
+  app.state = stateFromSupabaseRows(rows);
+  app.progress = getProgress(app.state);
+  persistLocalState();
+}
+
 async function fetchState() {
+  if (supabaseEnabled()) {
+    try {
+      await fetchSupabaseState();
+    } catch (error) {
+      console.warn("Supabase unavailable; falling back to local browser answers.", error);
+      app.mode = "static";
+      app.members = STATIC_MEMBERS;
+      app.questions = STATIC_QUESTIONS;
+      app.answerLimit = ANSWER_LIMIT;
+      app.state = loadLocalState();
+      app.progress = getProgress(app.state);
+    }
+  }
+
+  if (app.state) {
+    const storedMemberId = loadCurrentMemberId();
+    if (app.members.some((member) => member.id === storedMemberId)) {
+      app.currentMemberId = storedMemberId;
+    }
+
+    if (!app.members.some((member) => member.id === app.currentMemberId)) {
+      app.currentMemberId = app.members[0]?.id || "brandon";
+    }
+    return;
+  }
+
   try {
     const response = await fetch("/api/state", { cache: "no-store" });
     if (!response.ok) throw new Error("No backend here.");
@@ -535,6 +641,8 @@ function updateChrome() {
 
   if (app.progress.complete) {
     $("#statusNote").textContent = "The lock is closed. The Markdown source packet is ready to download.";
+  } else if (app.mode === "supabase") {
+    $("#statusNote").textContent = "Shared mode: answers save to The Studio Deux Supabase project and should appear across browsers.";
   } else if (app.mode === "static") {
     $("#statusNote").textContent = "Hidden-page mode: answers save in this browser. When every prompt has an answer, the Markdown packet becomes downloadable.";
   }
@@ -592,6 +700,25 @@ function renderMemberProgress() {
 }
 
 async function saveAnswer(member, question, answer) {
+  if (app.mode === "supabase") {
+    await supabaseRequest(`${SUPABASE_TABLE}?on_conflict=member_id,question_id`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=representation"
+      },
+      body: JSON.stringify({
+        member_id: member.id,
+        question_id: question.id,
+        answer,
+        updated_at: nowIso()
+      })
+    });
+
+    await fetchSupabaseState();
+    return;
+  }
+
   if (app.mode === "backend") {
     const response = await fetch("/api/answer", {
       method: "POST",
@@ -645,9 +772,13 @@ function renderAnswerHelper(member) {
   title.textContent = `Select yourself first. You are answering as ${member.name}.`;
 
   const note = document.createElement("p");
-  note.textContent = app.mode === "static"
-    ? "Saved answers stay in this browser between sessions. Use Resubmit answer whenever you want to replace one."
-    : "Saved answers stay on the local backend. Use Resubmit answer whenever you want to replace one.";
+  if (app.mode === "supabase") {
+    note.textContent = "Saved answers sync across browsers through the shared The Studio Deux Supabase project. Use Resubmit answer whenever you want to replace one.";
+  } else if (app.mode === "static") {
+    note.textContent = "Saved answers stay in this browser between sessions. Use Resubmit answer whenever you want to replace one.";
+  } else {
+    note.textContent = "Saved answers stay on the local backend. Use Resubmit answer whenever you want to replace one.";
+  }
 
   copy.append(eyebrow, title, note);
   helper.appendChild(copy);
