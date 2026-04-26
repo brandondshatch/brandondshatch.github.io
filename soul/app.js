@@ -1,8 +1,9 @@
 const SOUL_PASSWORD = "3soul";
 const SESSION_KEY = "studio-deux-soul-unlocked";
-const LOCAL_STATE_KEY = "studio-deux-soul-state";
+const LOCAL_STATE_KEY = "studio-deux-soul-state-v4";
+const CURRENT_MEMBER_KEY = "studio-deux-soul-current-member-v4";
 const ANSWER_LIMIT = 1500;
-const ASSET_VERSION = "20260426b";
+const ASSET_VERSION = "20260426e";
 
 function versionedAsset(path) {
   return `${path}?v=${ASSET_VERSION}`;
@@ -314,7 +315,12 @@ function buildMarkdown(state) {
 }
 
 function persistLocalState() {
-  localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(app.state));
+  try {
+    localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(app.state));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function loadLocalState() {
@@ -323,6 +329,22 @@ function loadLocalState() {
     return normalizeState(raw ? JSON.parse(raw) : defaultState());
   } catch {
     return defaultState();
+  }
+}
+
+function persistCurrentMember() {
+  try {
+    localStorage.setItem(CURRENT_MEMBER_KEY, app.currentMemberId);
+  } catch {
+    // Losing the selected tab is annoying, but the answers themselves still matter most.
+  }
+}
+
+function loadCurrentMemberId() {
+  try {
+    return localStorage.getItem(CURRENT_MEMBER_KEY);
+  } catch {
+    return null;
   }
 }
 
@@ -344,6 +366,11 @@ async function fetchState() {
     app.answerLimit = ANSWER_LIMIT;
     app.state = loadLocalState();
     app.progress = getProgress(app.state);
+  }
+
+  const storedMemberId = loadCurrentMemberId();
+  if (app.members.some((member) => member.id === storedMemberId)) {
+    app.currentMemberId = storedMemberId;
   }
 
   if (!app.members.some((member) => member.id === app.currentMemberId)) {
@@ -533,6 +560,7 @@ function renderMemberTabs() {
     button.addEventListener("click", () => {
       clickSound();
       app.currentMemberId = member.id;
+      persistCurrentMember();
       render();
     });
 
@@ -592,8 +620,45 @@ async function saveAnswer(member, question, answer) {
   if (getProgress(app.state).complete) {
     app.state.markdownGeneratedAt = nowIso();
   }
-  persistLocalState();
+  if (!persistLocalState()) {
+    throw new Error("This browser is blocking local saved answers. Please allow local storage before continuing.");
+  }
   app.progress = getProgress(app.state);
+}
+
+function savedPromptLabels(memberId) {
+  return app.questions
+    .map((question, index) => (isAnswered(memberId, question.id) ? `Prompt ${index + 1}` : null))
+    .filter(Boolean);
+}
+
+function renderAnswerHelper(member) {
+  const helper = document.createElement("div");
+  helper.className = "panel answer-helper";
+
+  const copy = document.createElement("div");
+  const eyebrow = document.createElement("p");
+  eyebrow.className = "eyebrow";
+  eyebrow.textContent = "Before you begin";
+
+  const title = document.createElement("h2");
+  title.textContent = `Select yourself first. You are answering as ${member.name}.`;
+
+  const note = document.createElement("p");
+  note.textContent = app.mode === "static"
+    ? "Saved answers stay in this browser between sessions. Use Resubmit answer whenever you want to replace one."
+    : "Saved answers stay on the local backend. Use Resubmit answer whenever you want to replace one.";
+
+  copy.append(eyebrow, title, note);
+  helper.appendChild(copy);
+
+  const saved = document.createElement("div");
+  saved.className = "saved-summary";
+  const labels = savedPromptLabels(member.id);
+  saved.textContent = labels.length ? `Saved: ${labels.join(", ")}` : "Saved: none yet";
+  helper.appendChild(saved);
+
+  return helper;
 }
 
 function renderQuestions() {
@@ -601,6 +666,7 @@ function renderQuestions() {
   const template = $("#questionTemplate");
   const member = app.members.find((item) => item.id === app.currentMemberId);
   container.innerHTML = "";
+  container.appendChild(renderAnswerHelper(member));
 
   for (const [index, question] of app.questions.entries()) {
     const fragment = template.content.cloneNode(true);
@@ -609,6 +675,7 @@ function renderQuestions() {
     const counter = fragment.querySelector(".counter");
     const saveButton = fragment.querySelector(".save-button");
     const answer = getAnswer(member.id, question.id);
+    const hasSavedAnswer = answer.trim().length > 0;
 
     fragment.querySelector(".question-number").textContent = `${member.seat} / Prompt ${index + 1}`;
     fragment.querySelector(".question-title").textContent = question.title;
@@ -623,12 +690,19 @@ function renderQuestions() {
     };
 
     const updateBadge = () => {
-      const saved = isAnswered(member.id, question.id);
-      badge.textContent = saved ? "Saved" : "Unsaved";
+      const changed = textarea.value !== answer;
+      const saved = hasSavedAnswer && !changed;
+      const dirty = hasSavedAnswer && changed;
+      badge.textContent = saved ? "Saved" : dirty ? "Unsaved changes" : "Unsaved";
       badge.classList.toggle("saved", saved);
+      badge.classList.toggle("dirty", dirty);
+      saveButton.textContent = hasSavedAnswer ? "Resubmit answer" : "Save answer";
     };
 
-    textarea.addEventListener("input", updateCounter);
+    textarea.addEventListener("input", () => {
+      updateCounter();
+      updateBadge();
+    });
     saveButton.addEventListener("click", async () => {
       clickSound();
       saveButton.disabled = true;
@@ -647,7 +721,7 @@ function renderQuestions() {
       } catch (error) {
         $("#statusNote").textContent = error.message;
         saveButton.disabled = false;
-        saveButton.textContent = "Save answer";
+        saveButton.textContent = hasSavedAnswer ? "Resubmit answer" : "Save answer";
       }
     });
 
