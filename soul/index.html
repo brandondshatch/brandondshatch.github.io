@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Studio Deux Soul</title>
+  <title>The Studio Deux Soul</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,13 +11,19 @@
     <div class="cloud cloud-a"></div>
     <div class="cloud cloud-b"></div>
     <div class="cloud cloud-c"></div>
+    <div class="cloud cloud-d"></div>
+    <div class="cloud cloud-e"></div>
+    <div class="cloud cloud-f"></div>
+    <div class="spark spark-a">+</div>
+    <div class="spark spark-b">+</div>
+    <div class="spark spark-c">+</div>
   </div>
 
   <section id="loginGate" class="login-gate" aria-label="Soul login">
     <div class="login-box">
-      <div class="tiny-being" aria-hidden="true"></div>
+      <img class="tiny-being" src="assets/soul-stage-0.png" alt="" aria-hidden="true">
       <p class="eyebrow">Hidden page</p>
-      <h1>Studio Deux Soul</h1>
+      <h1>The Studio Deux Soul</h1>
       <label for="passwordInput">Password</label>
       <input id="passwordInput" type="password" autocomplete="current-password">
       <button id="loginButton" class="button" type="button">Enter</button>
@@ -27,19 +33,11 @@
 
   <header class="topbar">
     <div class="being-wrap" aria-live="polite">
-      <div id="soulBeing" class="pixel-being stage-0" aria-label="Studio Deux soul character">
-        <div class="halo"></div>
-        <div class="head">
-          <span class="eye eye-left"></span>
-          <span class="eye eye-right"></span>
-          <span class="mouth"></span>
-        </div>
-        <div class="body"></div>
-        <div class="wing wing-left"></div>
-        <div class="wing wing-right"></div>
+      <div id="soulBeing" class="soul-being stage-0" aria-label="The Studio Deux soul character">
+        <img id="topSoulStageImage" src="assets/soul-stage-0.png" alt="">
       </div>
       <div>
-        <p class="eyebrow">Studio Deux</p>
+        <p class="eyebrow">The Studio Deux</p>
         <h1>Soul Source</h1>
       </div>
     </div>
@@ -62,20 +60,23 @@
     <section class="panel intro-panel">
       <div>
         <p class="eyebrow">Collective source packet</p>
-        <h2>Answer as Brandon, David, and Emery. The app will save every answer and generate the Markdown packet when the soul is whole.</h2>
+        <h2>Answer as David, Emery, and Brandon. The app will save every answer and generate the Markdown packet when the soul is whole.</h2>
       </div>
       <div class="output-actions">
         <a id="markdownLink" class="button ghost disabled" href="/api/markdown" target="_blank" rel="noreferrer">Open Markdown</a>
       </div>
     </section>
 
-    <section class="member-tabs" id="memberTabs" aria-label="Studio Deux members"></section>
+    <section class="member-tabs" id="memberTabs" aria-label="The Studio Deux members"></section>
 
     <section class="workspace">
       <aside class="panel side-panel">
         <p class="eyebrow">Soul growth</p>
         <h2 id="stageName">Baby soul</h2>
-        <p id="stageDescription">The small floating thing is waiting for its first remembered truth.</p>
+        <p id="stageDescription">The baby soul is newly awake and already growing toward its first remembered truth.</p>
+        <div id="stagePortrait" class="stage-portrait" aria-hidden="true">
+          <img id="sideSoulStageImage" src="assets/soul-stage-0.png" alt="">
+        </div>
         <div class="member-progress" id="memberProgress"></div>
         <div class="note-box" id="statusNote">Answers save to the local backend. When every prompt has an answer, the lock closes and the source packet appears.</div>
       </aside>

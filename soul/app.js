@@ -4,26 +4,26 @@ const LOCAL_STATE_KEY = "studio-deux-soul-state";
 const ANSWER_LIMIT = 1500;
 
 const STATIC_MEMBERS = [
-  { id: "brandon", name: "Brandon Hatch", seat: "The Heart" },
   { id: "david", name: "David Lees", seat: "The Eye" },
-  { id: "emery", name: "Emery Lees", seat: "The Mind" }
+  { id: "emery", name: "Emery Lees", seat: "The Mind" },
+  { id: "brandon", name: "Brandon Hatch", seat: "The Heart" }
 ];
 
 const STATIC_QUESTIONS = [
   {
     id: "protecting",
     title: "What are we protecting?",
-    prompt: "What does Studio Deux need to protect as it grows, earns, experiments, and changes?"
+    prompt: "What does The Studio Deux need to protect as it grows, earns, experiments, and changes?"
   },
   {
     id: "possible",
     title: "What do we make possible?",
-    prompt: "When Studio Deux is at its best, what becomes possible for clients, collaborators, and the team?"
+    prompt: "When The Studio Deux is at its best, what becomes possible for clients, collaborators, and the team?"
   },
   {
     id: "feels_like_us",
     title: "What work feels like us?",
-    prompt: "Describe the kind of work, clients, moments, materials, or rooms that feel unmistakably Studio Deux."
+    prompt: "Describe the kind of work, clients, moments, materials, or rooms that feel unmistakably The Studio Deux."
   },
   {
     id: "not_us",
@@ -38,12 +38,12 @@ const STATIC_QUESTIONS = [
   {
     id: "ai",
     title: "What is our relationship to AI?",
-    prompt: "What should AI do for Studio Deux, what should it never do, and how do we keep human judgment at the center?"
+    prompt: "What should AI do for The Studio Deux, what should it never do, and how do we keep human judgment at the center?"
   },
   {
     id: "clients",
     title: "How should clients feel?",
-    prompt: "How should a client feel before, during, and after working with Studio Deux?"
+    prompt: "How should a client feel before, during, and after working with The Studio Deux?"
   },
   {
     id: "tensions",
@@ -53,7 +53,7 @@ const STATIC_QUESTIONS = [
   {
     id: "decision_rule",
     title: "What is the decision rule?",
-    prompt: "When the team is unsure, what should Studio Deux choose? Finish the sentence: When in doubt, we..."
+    prompt: "When the team is unsure, what should The Studio Deux choose? Finish the sentence: When in doubt, we..."
   }
 ];
 
@@ -64,7 +64,7 @@ const app = {
   answerLimit: ANSWER_LIMIT,
   state: null,
   progress: null,
-  currentMemberId: "brandon",
+  currentMemberId: "david",
   markdownUrl: null,
   audioContext: null
 };
@@ -72,19 +72,23 @@ const app = {
 const stageCopy = [
   {
     name: "Baby soul",
-    description: "The small floating thing is waiting for its first remembered truth."
+    description: "The baby soul is newly awake and already growing toward its first remembered truth."
   },
   {
-    name: "Growing soul",
-    description: "A few answers are in. The little being is starting to recognize the room."
+    name: "Toddler soul",
+    description: "The toddler soul has found its feet. Every answer helps it wobble forward with a little more courage."
   },
   {
-    name: "Brightening soul",
-    description: "The shared center is coming into view, still misty but no longer blank."
+    name: "Kid soul",
+    description: "The kid soul is waving now, proud of what it can name and delighted to be growing up."
   },
   {
-    name: "Full-grown soul",
-    description: "All three voices are present. The lock can close around the source packet."
+    name: "Almost-grown soul",
+    description: "The almost-grown soul is standing taller. The shared truth is getting sturdy enough to hold."
+  },
+  {
+    name: "Grown soul",
+    description: "The grown soul has become itself. With all three voices present, it can guard the source packet with care."
   }
 ];
 
@@ -93,6 +97,20 @@ const avatarClassByMember = {
   emery: "avatar-emery",
   david: "avatar-david"
 };
+
+const avatarImageByMember = {
+  brandon: "assets/brandon.jpg",
+  emery: "assets/emery.jpg",
+  david: "assets/david.jpg"
+};
+
+const soulStageImages = [
+  "assets/soul-stage-0.png",
+  "assets/soul-stage-1.png",
+  "assets/soul-stage-2.png",
+  "assets/soul-stage-3.png",
+  "assets/soul-stage-4.png"
+];
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -192,16 +210,16 @@ function buildMarkdown(state) {
   });
 
   const lines = [
-    "# ⟦g⟧ Studio Deux Soul Source Packet",
+    "# ⟦g⟧ The Studio Deux Soul Source Packet",
     "",
     "**Metadata**",
     "- **Status:** Working",
     `- **Last updated:** ${generatedDate}`,
-    "- **Owner:** Studio Deux team",
+    "- **Owner:** The Studio Deux team",
     "- **Update trigger:** Update if any member revises their answers or the final SOUL.md draft is generated and reviewed.",
     "- **Generated:** ⟦g⟧ yes",
     "",
-    "> This is not the final `SOUL.md`. This is the complete source packet: all three Studio Deux members' answers, verbatim, plus instructions for an LLM to synthesize the final durable soul document.",
+    "> This is not the final `SOUL.md`. This is the complete source packet: answers from all three members of The Studio Deux, verbatim, plus instructions for an LLM to synthesize the final durable soul document.",
     "",
     "---",
     "",
@@ -222,7 +240,7 @@ function buildMarkdown(state) {
     "4. Prefer plain, specific language over manifesto language.",
     "5. Combine overlapping ideas, but do not erase tension where the team genuinely holds more than one truth.",
     "6. Do not invent values, history, or commitments not supported by the answers.",
-    "7. Write for future agents and humans who need to understand what Studio Deux is protecting.",
+    "7. Write for future agents and humans who need to understand what The Studio Deux is protecting.",
     "8. Produce a root-level `SOUL.md` draft with a metadata block.",
     "9. Mark the first synthesized draft as `Generated: ⟦g⟧ yes` until the team reviews and humanizes it.",
     "10. Include a final `Decision Rule` section that helps the team choose when money, taste, care, and ambition pull in different directions.",
@@ -235,7 +253,7 @@ function buildMarkdown(state) {
     "**Metadata**",
     "- **Status:** Draft",
     "- **Last updated:** [date]",
-    "- **Owner:** Studio Deux team",
+    "- **Owner:** The Studio Deux team",
     "- **Update trigger:** Update when the team's core identity, taste, conscience, or decision principles materially change.",
     "- **Generated:** ⟦g⟧ yes",
     "",
@@ -283,7 +301,7 @@ function buildMarkdown(state) {
   }
 
   lines.push("---", "", "## Source Notes", "");
-  lines.push("- Answers are included verbatim from the Studio Deux Soul app.");
+  lines.push("- Answers are included verbatim from The Studio Deux Soul app.");
   lines.push("- Blank answers are not allowed in a completed source packet.");
   lines.push("- Character limit in the app: 1,500 characters per answer.");
 
@@ -333,11 +351,11 @@ function createAvatar(memberId) {
   avatar.className = `mini-avatar ${avatarClassByMember[memberId] || ""}`;
   avatar.setAttribute("aria-hidden", "true");
 
-  for (const part of ["hair", "eyes", "mouth", "beard", "detail"]) {
-    const element = document.createElement("span");
-    element.className = part;
-    avatar.appendChild(element);
-  }
+  const image = document.createElement("img");
+  image.src = avatarImageByMember[memberId] || "";
+  image.alt = "";
+  image.loading = "lazy";
+  avatar.appendChild(image);
 
   return avatar;
 }
@@ -406,12 +424,21 @@ function triggerSoulSpin() {
   });
 }
 
+function triggerSoulPop() {
+  const soul = $("#soulBeing");
+  const portrait = $("#stagePortrait");
+  for (const element of [soul, portrait]) {
+    element.classList.remove("pop");
+    window.requestAnimationFrame(() => {
+      element.classList.add("pop");
+      setTimeout(() => element.classList.remove("pop"), 520);
+    });
+  }
+}
+
 function currentStage() {
   const percent = app.progress.percent;
-  if (percent >= 100) return 3;
-  if (percent >= 67) return 2;
-  if (percent >= 34) return 1;
-  return 0;
+  return Math.min(4, Math.floor(percent / 20));
 }
 
 function updateMarkdownLink() {
@@ -449,15 +476,26 @@ function updateChrome() {
   const percent = app.progress.percent;
   const stage = currentStage();
   const soul = $("#soulBeing");
+  const topSoulStageImage = $("#topSoulStageImage");
+  const sideSoulStageImage = $("#sideSoulStageImage");
   const lock = $("#lock");
+  const previousStage = soul.dataset.stage;
+  const stageImage = soulStageImages[stage];
 
   $("#progressText").textContent = `${app.progress.completed} of ${app.progress.total}`;
   $("#progressFill").style.width = `${percent}%`;
 
-  soul.classList.remove("stage-0", "stage-1", "stage-2", "stage-3");
+  soul.classList.remove("stage-0", "stage-1", "stage-2", "stage-3", "stage-4");
   soul.classList.add(`stage-${stage}`);
+  soul.dataset.stage = String(stage);
+  topSoulStageImage.src = stageImage;
+  sideSoulStageImage.src = stageImage;
   $("#stageName").textContent = stageCopy[stage].name;
   $("#stageDescription").textContent = stageCopy[stage].description;
+
+  if (previousStage !== undefined && previousStage !== String(stage)) {
+    triggerSoulPop();
+  }
 
   lock.classList.toggle("locked", app.progress.complete);
   lock.classList.toggle("unlocked", !app.progress.complete);
