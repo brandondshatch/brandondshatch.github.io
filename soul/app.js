@@ -2,6 +2,11 @@ const SOUL_PASSWORD = "3soul";
 const SESSION_KEY = "studio-deux-soul-unlocked";
 const LOCAL_STATE_KEY = "studio-deux-soul-state";
 const ANSWER_LIMIT = 1500;
+const ASSET_VERSION = "20260426b";
+
+function versionedAsset(path) {
+  return `${path}?v=${ASSET_VERSION}`;
+}
 
 const STATIC_MEMBERS = [
   { id: "david", name: "David Lees", seat: "The Eye" },
@@ -99,17 +104,17 @@ const avatarClassByMember = {
 };
 
 const avatarImageByMember = {
-  brandon: "assets/brandon.jpg",
-  emery: "assets/emery.jpg",
-  david: "assets/david.jpg"
+  brandon: versionedAsset("assets/brandon.jpg"),
+  emery: versionedAsset("assets/emery.jpg"),
+  david: versionedAsset("assets/david.jpg")
 };
 
 const soulStageImages = [
-  "assets/soul-stage-0.png",
-  "assets/soul-stage-1.png",
-  "assets/soul-stage-2.png",
-  "assets/soul-stage-3.png",
-  "assets/soul-stage-4.png"
+  versionedAsset("assets/soul-stage-0.png"),
+  versionedAsset("assets/soul-stage-1.png"),
+  versionedAsset("assets/soul-stage-2.png"),
+  versionedAsset("assets/soul-stage-3.png"),
+  versionedAsset("assets/soul-stage-4.png")
 ];
 
 const $ = (selector) => document.querySelector(selector);
