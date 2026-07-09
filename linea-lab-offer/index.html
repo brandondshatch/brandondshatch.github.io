@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linea Lab — Purposeful AI</title>
+<meta name="description" content="Linea Lab builds AI systems you understand, own, and grow — one purposeful step at a time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="ll-mblur" x="-20%" y="-60%" width="140%" height="220%">
+      <feGaussianBlur id="ll-mblur-std" stdDeviation="0 0"></feGaussianBlur>
+    </filter>
+  </defs>
+</svg>
+
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <div class="brand">
+    <img src="assets/linea-lab-mark-linen.png" alt="Linea Lab" class="brand-mark">
+    <span class="brand-name">Linea Lab</span>
+  </div>
+  <a href="#start" class="header-link">Start a conversation</a>
+</header>
+
+<main class="root">
+
+  <!-- HERO -->
+  <section class="screen hero" data-screen-label="Hero">
+    <div class="group" data-anim>
+      <h1 data-words="title">The clearest path<br>to <em>useful</em> AI.</h1>
+      <p class="lede" data-words="body">We build systems you understand, own, and grow — one purposeful step at a time.</p>
+    </div>
+    <div class="scroll-cue" id="scroll-cue">
+      <span>Scroll</span>
+      <div class="scroll-cue-line"></div>
+    </div>
+  </section>
+
+  <!-- 1 · THE NOISE -->
+  <section class="screen beat beat-noise" data-screen-label="The noise">
+    <div class="group copy-block" id="b1" data-anim>
+      <h2 data-words="title">It&rsquo;s loud out there.</h2>
+      <div class="label" data-words="label">Where things stand</div>
+      <p class="body-copy" data-words="body">New tools every week. Big promises. The quiet feeling that everyone else has it figured out. Most businesses don&rsquo;t need more AI — they need a clear place to start.</p>
+    </div>
+  </section>
+
+  <!-- 2 · THE FOUNDATION -->
+  <section class="screen beat beat-foundation" data-screen-label="The foundation">
+    <div class="group copy-block copy-block--wide" id="b2" data-anim>
+      <h2 data-words="title">Built with you.<br>Never a black box.</h2>
+      <div class="label" data-words="label">First, the foundation</div>
+      <p class="body-copy body-copy--wide" data-words="body">We take what your business already knows — how you price, how you communicate, what good work looks like — and shape it into a foundation you own, on your own systems. We explain everything as we build, so when it&rsquo;s finished you understand every piece, and it&rsquo;s yours to run and grow.</p>
+    </div>
+    <div class="group quote-block" id="b2q" data-anim>
+      <p class="quote" data-words="title">If we stopped there, you&rsquo;d still keep everything.</p>
+    </div>
+  </section>
+
+  <!-- 3 · ONE WORKFLOW -->
+  <section class="screen beat beat-workflow" data-screen-label="One workflow">
+    <div class="group copy-block" id="b3" data-anim>
+      <h2 data-words="title">Prove one thing<br>works, calmly.</h2>
+      <div class="label" data-words="label">Then, one workflow</div>
+      <p class="body-copy" data-words="body">We don&rsquo;t automate everything at once. Together we choose the single task that eats the most of your week, and make it run quietly and reliably — proven on your real work, with your people reviewing anything that matters.</p>
+    </div>
+    <div class="group quote-block quote-block--tight" id="b3q" data-anim>
+      <p class="quote" data-words="title">One working routine beats a grand plan.</p>
+    </div>
+  </section>
+
+  <!-- 4 · THE PATH FORWARD -->
+  <section class="screen beat beat-path" data-screen-label="The path forward">
+    <div class="group copy-block copy-block--wide copy-block--path" id="b4" data-anim>
+      <h2 data-words="title">A structure that grows with you.</h2>
+      <div class="label" data-words="label">Three offers, taken in order</div>
+    </div>
+
+    <div class="nodes" data-anim>
+      <svg id="nodes-svg" class="nodes-svg" viewBox="0 0 960 90" aria-hidden="true">
+        <line id="node-line-1" x1="195" y1="45" x2="445" y2="45" stroke="#C17D3C" stroke-width="2"></line>
+        <line id="node-line-2" x1="515" y1="45" x2="765" y2="45" stroke="#C17D3C" stroke-width="2"></line>
+        <circle id="node-circle-1" cx="160" cy="45" r="29" fill="#C17D3C" fill-opacity="0" stroke="rgba(247,244,240,0.6)" stroke-width="1.5"></circle>
+        <circle id="node-circle-2" cx="480" cy="45" r="29" fill="#C17D3C" fill-opacity="0" stroke="rgba(247,244,240,0.6)" stroke-width="1.5"></circle>
+        <circle id="node-circle-3" cx="800" cy="45" r="29" fill="#C17D3C" fill-opacity="0" stroke="rgba(247,244,240,0.6)" stroke-width="1.5"></circle>
+      </svg>
+      <div class="offers">
+        <div class="offer">
+          <h3 data-words="title">The Foundation</h3>
+          <p class="offer-copy" data-words="body">Where every client begins — the engagement described on this page.</p>
+          <p class="offer-price" data-words="label">From $1,200</p>
+        </div>
+        <div class="offer">
+          <h3 data-words="title">The Structure</h3>
+          <p class="offer-copy" data-words="body">Deeper systems, layered on the foundation you already understand.</p>
+          <p class="offer-price" data-words="label">Priced to the work</p>
+        </div>
+        <div class="offer">
+          <h3 data-words="title">The Support</h3>
+          <p class="offer-copy" data-words="body">We stay on hand as you grow — so you never fall behind.</p>
+          <p class="offer-price" data-words="label">Monthly retainer</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="group quote-block quote-block--small" data-anim>
+      <p class="quote quote--small" data-words="title">Each step is its own decision, made after the last one has proven itself.</p>
+    </div>
+  </section>
+
+  <!-- 5 · START -->
+  <section id="start" class="screen beat-start" data-screen-label="Start">
+    <div class="group copy-block copy-block--wide" data-anim>
+      <h2 data-words="title">Begin with a conversation.</h2>
+      <div class="label" data-words="label">Start</div>
+      <p class="body-copy" data-words="body">Tell us about your business and the work that fills your week. We&rsquo;ll tell you, plainly, what we&rsquo;d build first — and what it would take.</p>
+      <p class="fine-print" data-words="body">Engagements begin at $1,200 — fixed scope, fixed price.</p>
+
+      <div class="cta-row" data-fade>
+        <a class="cta-primary" href="mailto:brandon@linealab.ai?subject=Starting%20with%20Linea%20Lab&body=Hi%20Brandon%2C%0A%0AI%27d%20like%20to%20talk%20about%20what%20Linea%20Lab%20could%20build%20for%20us.%0A%0AMy%20business%3A%20%0AThe%20work%20that%20eats%20our%20week%3A%20%0A%0AThanks%2C">Email Linea Lab</a>
+        <button id="request-call-btn" class="cta-secondary" type="button">Request a call</button>
+      </div>
+      <p class="contact-email" data-fade>brandon@linealab.ai</p>
+      <p id="call-requested-msg" class="call-requested" hidden>Got it — we&rsquo;ll call you to set things up, usually within a business day.</p>
+    </div>
+
+    <footer class="site-footer">
+      <img src="assets/linea-lab-mark-linen.png" alt="Linea Lab" class="footer-mark">
+      <span class="footer-caption">Linea Lab &middot; 2026</span>
+    </footer>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
