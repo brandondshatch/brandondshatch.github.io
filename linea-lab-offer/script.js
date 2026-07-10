@@ -25,7 +25,8 @@
     l2: document.getElementById('node-line-2'),
     icon1: document.getElementById('node-icon-1'),
     icon2: document.getElementById('node-icon-2'),
-    icon3: document.getElementById('node-icon-3')
+    icon3: document.getElementById('node-icon-3'),
+    illus1Src: document.getElementById('illus1-src')
   };
 
   let groups = [];
@@ -37,6 +38,8 @@
   let t0 = performance.now();
   let prepped = false;
   let nodesRun = false;
+  let settledOnce = false;
+  const isCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
 
   // ---------- word animation ----------
 
@@ -181,10 +184,23 @@
     ctx.globalAlpha = 1;
   }
 
+  // centered, contained (non-cropping) draw for the diamond illustration —
+  // it plays its own animation loop independent of scroll position; only
+  // its visibility is scroll-driven
+  function drawIllus(ctx, img, w, h, alpha) {
+    if (!img || alpha <= 0.004 || !img.naturalWidth) return;
+    const size = Math.min(w, h) * 0.46;
+    const s = size / Math.max(img.naturalWidth, img.naturalHeight);
+    const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    ctx.globalAlpha = 1;
+  }
+
   // cover-fit draw with the top and bottom edges feathered to transparent —
   // used for images that drift vertically, so the drift never exposes a
   // hard-cut edge where the cover crop runs out of overscan
-  let featherCanvas, featherCtx;
+  let featherCanvas, featherCtx, featherGradCache;
   function drawCoverFeathered(ctx, img, w, h, alpha, dy) {
     if (!img || alpha <= 0.004) return;
     if (!featherCanvas) {
@@ -200,19 +216,22 @@
     const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
     const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
     featherCtx.drawImage(img, (w - dw) / 2, (h - dh) / 2 + (dy || 0), dw, dh);
-    const fade = Math.min(h * 0.4, 340);
-    const f = fade / h;
-    const grad = featherCtx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, 'rgba(0,0,0,0)');
-    grad.addColorStop(f * 0.35, 'rgba(0,0,0,0.12)');
-    grad.addColorStop(f * 0.7, 'rgba(0,0,0,0.55)');
-    grad.addColorStop(f, 'rgba(0,0,0,1)');
-    grad.addColorStop(1 - f, 'rgba(0,0,0,1)');
-    grad.addColorStop(1 - f * 0.7, 'rgba(0,0,0,0.55)');
-    grad.addColorStop(1 - f * 0.35, 'rgba(0,0,0,0.12)');
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    if (!featherGradCache || featherGradCache.h !== h) {
+      const fade = Math.min(h * 0.4, 340);
+      const f = fade / h;
+      const grad = featherCtx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, 'rgba(0,0,0,0)');
+      grad.addColorStop(f * 0.35, 'rgba(0,0,0,0.12)');
+      grad.addColorStop(f * 0.7, 'rgba(0,0,0,0.55)');
+      grad.addColorStop(f, 'rgba(0,0,0,1)');
+      grad.addColorStop(1 - f, 'rgba(0,0,0,1)');
+      grad.addColorStop(1 - f * 0.7, 'rgba(0,0,0,0.55)');
+      grad.addColorStop(1 - f * 0.35, 'rgba(0,0,0,0.12)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      featherGradCache = { h, grad };
+    }
     featherCtx.globalCompositeOperation = 'destination-in';
-    featherCtx.fillStyle = grad;
+    featherCtx.fillStyle = featherGradCache.grad;
     featherCtx.fillRect(0, 0, w, h);
     featherCtx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = alpha;
@@ -287,7 +306,7 @@
   function drawBackground(y, vh, t) {
     const c = els.bgCanvas;
     if (!c) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const dpr = Math.min(window.devicePixelRatio || 1, isCoarsePointer ? 1 : 1.5);
     const w = window.innerWidth, h = window.innerHeight;
     if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) {
       c.width = Math.round(w * dpr);
@@ -320,6 +339,12 @@
       const p = span(A1, A2, vc);
       drawCover(ctx, pickFrame(seqWorld, p), w, h, wAlpha * level);
     }
+    // diamond illustration: dissolves in just after the hero, then dissolves
+    // back out before the noise heading takes over
+    const i1t = span(vh * 0.55, Math.min(vh * 1.4, A1 - vh * 0.12), vc);
+    if (i1t > 0 && i1t < 1) {
+      drawIllus(ctx, els.illus1Src, w, h, Math.sin(i1t * Math.PI) * 0.55);
+    }
     // deer zoom: crossfades in at the quote, animates until "Prove one thing", dissolves by "One working routine"
     const dAlpha = span(A2q, A2q + vh * 0.55, vc) * (1 - span(A3 + vh * 0.3, A3q - vh * 0.1, vc));
     if (dAlpha > 0) {
@@ -331,6 +356,9 @@
     if (bt > 0 && bt < 1) {
       const env = Math.sin(bt * Math.PI);
       drawBlueprint(ctx, w, h, vc, (A3q + A4) / 2, t, env * 0.15);
+      // diamond illustration again, hovering over the circuit lines between
+      // "Start with one thing that works" and "A structure that grows with you"
+      drawIllus(ctx, els.illus1Src, w, h, env * 0.6);
     }
     // city skyline: dissolves in as it rises between the offers and "Begin
     // with a conversation," then dissolves back out as it drifts offscreen
@@ -416,30 +444,37 @@
   function frame() {
     const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const strength = reduce ? 0 : CONFIG.parallax;
-    const blurOn = !reduce && CONFIG.motionBlur;
+    const blurOn = !reduce && !isCoarsePointer && CONFIG.motionBlur;
     const y = window.scrollY;
     const vh = window.innerHeight;
     const dy = y - lastY;
     lastY = y;
     vel = vel * 0.82 + dy * 0.18;
-    if (els.scrollCue) els.scrollCue.style.opacity = String(Math.max(0, 1 - y / (vh * 0.3)));
-    drawBackground(y, vh, reduce ? 0 : (performance.now() - t0) / 1000);
-    const b = blurOn ? Math.min(Math.abs(vel) * 0.055, 6) : 0;
-    if (els.blur) els.blur.setAttribute('stdDeviation', '0 ' + b.toFixed(2));
-    const lim = vh * 0.22;
-    groups.forEach((g) => {
-      const center = g.top + g.h / 2;
-      const viewCenter = y + vh / 2;
-      // off-screen: skip work
-      if (g.top + g.h < y - vh || g.top > y + vh * 2) return;
-      let ty = (viewCenter - center) * strength;
-      ty = Math.max(-lim, Math.min(lim, ty));
-      g.ty = ty;
-      g.el.style.transform = 'translate3d(0,' + ty.toFixed(1) + 'px,0)';
-      const useBlur = b > 0.35 && g.revealed;
-      const f = useBlur ? 'url(#ll-mblur)' : '';
-      if (g.el.style.filter !== f) g.el.style.filter = f;
-    });
+    // nothing moved and any residual velocity has already decayed away —
+    // skip the redraw/transform work entirely rather than repeating it
+    // every animation-frame tick while the page is sitting still
+    const idle = dy === 0 && Math.abs(vel) < 0.05 && settledOnce;
+    if (!idle) {
+      if (els.scrollCue) els.scrollCue.style.opacity = String(Math.max(0, 1 - y / (vh * 0.3)));
+      drawBackground(y, vh, reduce ? 0 : (performance.now() - t0) / 1000);
+      const b = blurOn ? Math.min(Math.abs(vel) * 0.055, 6) : 0;
+      if (els.blur) els.blur.setAttribute('stdDeviation', '0 ' + b.toFixed(2));
+      const lim = vh * 0.22;
+      groups.forEach((g) => {
+        const center = g.top + g.h / 2;
+        const viewCenter = y + vh / 2;
+        // off-screen: skip work
+        if (g.top + g.h < y - vh || g.top > y + vh * 2) return;
+        let ty = (viewCenter - center) * strength;
+        ty = Math.max(-lim, Math.min(lim, ty));
+        g.ty = ty;
+        g.el.style.transform = 'translate3d(0,' + ty.toFixed(1) + 'px,0)';
+        const useBlur = b > 0.35 && g.revealed;
+        const f = useBlur ? 'url(#ll-mblur)' : '';
+        if (g.el.style.filter !== f) g.el.style.filter = f;
+      });
+      settledOnce = dy === 0 && Math.abs(vel) < 0.05;
+    }
     raf = requestAnimationFrame(frame);
   }
 
@@ -454,10 +489,10 @@
     lastY = window.scrollY;
     vel = 0;
     t0 = performance.now();
-    window.addEventListener('resize', measure);
-    window.addEventListener('load', measure);
+    window.addEventListener('resize', () => { measure(); settledOnce = false; });
+    window.addEventListener('load', () => { measure(); settledOnce = false; });
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(measure);
+      document.fonts.ready.then(() => { measure(); settledOnce = false; });
     }
     raf = requestAnimationFrame(frame);
   }
