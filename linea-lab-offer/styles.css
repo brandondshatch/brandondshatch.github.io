@@ -375,12 +375,13 @@ em {
   border-radius: 2px;
   opacity: 0;
   pointer-events: none;
-  animation: cta-ring-expand 1.4s ease-out infinite;
-  animation-play-state: paused;
 }
 
-.cta-primary:hover .cta-ring {
-  animation-play-state: running;
+/* JS toggles this class on/off per cycle (see script.js) — each cycle is a
+   single, un-interruptible run of the keyframe, so releasing the mouse
+   mid-cycle lets it finish dissolving out instead of freezing in place */
+.cta-ring.cta-ring-playing {
+  animation: cta-ring-expand 1.4s ease-out 1;
 }
 
 @keyframes cta-ring-expand {

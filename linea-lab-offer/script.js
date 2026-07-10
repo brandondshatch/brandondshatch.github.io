@@ -349,6 +349,32 @@
     }
   }
 
+  // ---------- CTA hover ring ----------
+
+  function setupCtaRing() {
+    const btn = document.querySelector('.cta-primary');
+    const ring = btn && btn.querySelector('.cta-ring');
+    if (!btn || !ring) return;
+    let hovering = false;
+    const playCycle = () => {
+      ring.classList.remove('cta-ring-playing');
+      void ring.offsetWidth; // force reflow so the animation restarts cleanly
+      ring.classList.add('cta-ring-playing');
+    };
+    ring.addEventListener('animationend', () => {
+      if (hovering) playCycle();
+    });
+    btn.addEventListener('mouseenter', () => {
+      hovering = true;
+      playCycle();
+    });
+    btn.addEventListener('mouseleave', () => {
+      // don't stop the in-flight cycle — just don't relaunch it, so it
+      // always finishes dissolving out rather than freezing mid-animation
+      hovering = false;
+    });
+  }
+
   // ---------- three-offer node sequence ----------
 
   let nodesIo;
@@ -463,6 +489,7 @@
     measure();
     setupObserver();
     prepNodes();
+    setupCtaRing();
     lastY = window.scrollY;
     vel = 0;
     t0 = performance.now();
