@@ -16,6 +16,7 @@
     b2: document.getElementById('b2'),
     b3: document.getElementById('b3'),
     b4: document.getElementById('b4'),
+    b5: document.getElementById('b5'),
     nodesSvg: document.getElementById('nodes-svg'),
     c1: document.getElementById('node-circle-1'),
     c2: document.getElementById('node-circle-2'),
@@ -30,6 +31,7 @@
   let groups = [];
   let blueprint = [];
   let seqWorld, seqDeer;
+  let cityImg;
   let lastY = window.scrollY;
   let vel = 0;
   let t0 = performance.now();
@@ -137,6 +139,9 @@
     seqDeer = mk('assets/deer/d_', 121);
     loadSeq(seqWorld);
     setTimeout(() => loadSeq(seqDeer), 1200);
+    cityImg = new Image();
+    cityImg.decoding = 'async';
+    cityImg.src = 'assets/city.webp';
   }
 
   function loadSeq(seq) {
@@ -167,12 +172,12 @@
     return null;
   }
 
-  function drawCover(ctx, img, w, h, alpha) {
+  function drawCover(ctx, img, w, h, alpha, dy) {
     if (!img || alpha <= 0.004) return;
     const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
     const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
     ctx.globalAlpha = alpha;
-    ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2 + (dy || 0), dw, dh);
     ctx.globalAlpha = 1;
   }
 
@@ -255,7 +260,7 @@
     const vc = y + vh / 2;
     const span = (a, b, v) => Math.max(0, Math.min(1, (v - a) / (b - a)));
     const A1 = anchor(els.b1), A2 = anchor(els.b2);
-    const A3 = anchor(els.b3), A4 = anchor(els.b4);
+    const A3 = anchor(els.b3), A4 = anchor(els.b4), A5 = anchor(els.b5);
     if (!A1) return;
     // virtual pivots standing in for the removed quote blocks — keep the
     // same crossfade/interlude timing without needing extra DOM anchors
@@ -265,7 +270,7 @@
     // is centered on screen, rises in the space between blocks
     const base = CONFIG.imageOpacity;
     let nearText = 0;
-    [A1, A2, A2q, A3, A3q, A4].forEach((a) => {
+    [A1, A2, A2q, A3, A3q, A4, A5].forEach((a) => {
       const d = Math.abs(vc - a) / (vh * 0.5);
       nearText = Math.max(nearText, Math.max(0, 1 - d));
     });
@@ -287,6 +292,16 @@
     if (bt > 0 && bt < 1) {
       const env = Math.sin(bt * Math.PI);
       drawBlueprint(ctx, w, h, vc, (A3q + A4) / 2, t, env * 0.15);
+    }
+    // city skyline: dissolves in as it rises between the offers and "Begin
+    // with a conversation," then dissolves back out as it drifts offscreen
+    if (A5) {
+      const ct = span(A5 - vh * 0.9, A5 - vh * 0.05, vc);
+      if (ct > 0 && ct < 1) {
+        const cEnv = Math.sin(ct * Math.PI);
+        const rise = (0.5 - ct) * vh * 0.5;
+        drawCover(ctx, cityImg, w, h, cEnv * level, rise);
+      }
     }
   }
 

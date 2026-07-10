@@ -248,7 +248,7 @@ em {
 
 .beat-path {
   min-height: 110vh;
-  padding-bottom: 10vh;
+  padding-bottom: 5vh;
 }
 
 .copy-block--path {
@@ -332,7 +332,7 @@ em {
 }
 
 .beat-start .copy-block {
-  margin-top: 18vh;
+  margin-top: 10vh;
 }
 
 .cta-row {
