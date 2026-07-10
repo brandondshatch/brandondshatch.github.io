@@ -25,8 +25,7 @@
     l2: document.getElementById('node-line-2'),
     icon1: document.getElementById('node-icon-1'),
     icon2: document.getElementById('node-icon-2'),
-    icon3: document.getElementById('node-icon-3'),
-    illus1Src: document.getElementById('illus1-src')
+    icon3: document.getElementById('node-icon-3')
   };
 
   let groups = [];
@@ -184,19 +183,6 @@
     ctx.globalAlpha = 1;
   }
 
-  // centered, contained (non-cropping) draw for the diamond illustration —
-  // it plays its own animation loop independent of scroll position; only
-  // its visibility is scroll-driven
-  function drawIllus(ctx, img, w, h, alpha) {
-    if (!img || alpha <= 0.004 || !img.naturalWidth) return;
-    const size = Math.min(w, h) * 0.46;
-    const s = size / Math.max(img.naturalWidth, img.naturalHeight);
-    const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
-    ctx.globalAlpha = 1;
-  }
-
   // cover-fit draw with the top and bottom edges feathered to transparent —
   // used for images that drift vertically, so the drift never exposes a
   // hard-cut edge where the cover crop runs out of overscan
@@ -339,12 +325,6 @@
       const p = span(A1, A2, vc);
       drawCover(ctx, pickFrame(seqWorld, p), w, h, wAlpha * level);
     }
-    // diamond illustration: dissolves in just after the hero, then dissolves
-    // back out before the noise heading takes over
-    const i1t = span(vh * 0.55, Math.min(vh * 1.4, A1 - vh * 0.12), vc);
-    if (i1t > 0 && i1t < 1) {
-      drawIllus(ctx, els.illus1Src, w, h, Math.sin(i1t * Math.PI) * 0.55);
-    }
     // deer zoom: crossfades in at the quote, animates until "Prove one thing", dissolves by "One working routine"
     const dAlpha = span(A2q, A2q + vh * 0.55, vc) * (1 - span(A3 + vh * 0.3, A3q - vh * 0.1, vc));
     if (dAlpha > 0) {
@@ -356,9 +336,6 @@
     if (bt > 0 && bt < 1) {
       const env = Math.sin(bt * Math.PI);
       drawBlueprint(ctx, w, h, vc, (A3q + A4) / 2, t, env * 0.15);
-      // diamond illustration again, hovering over the circuit lines between
-      // "Start with one thing that works" and "A structure that grows with you"
-      drawIllus(ctx, els.illus1Src, w, h, env * 0.6);
     }
     // city skyline: dissolves in as it rises between the offers and "Begin
     // with a conversation," then dissolves back out as it drifts offscreen
