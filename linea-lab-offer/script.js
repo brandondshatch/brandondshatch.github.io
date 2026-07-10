@@ -200,12 +200,16 @@
     const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
     const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
     featherCtx.drawImage(img, (w - dw) / 2, (h - dh) / 2 + (dy || 0), dw, dh);
-    const fade = Math.min(h * 0.22, 220);
+    const fade = Math.min(h * 0.4, 340);
     const f = fade / h;
     const grad = featherCtx.createLinearGradient(0, 0, 0, h);
     grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(f * 0.35, 'rgba(0,0,0,0.12)');
+    grad.addColorStop(f * 0.7, 'rgba(0,0,0,0.55)');
     grad.addColorStop(f, 'rgba(0,0,0,1)');
     grad.addColorStop(1 - f, 'rgba(0,0,0,1)');
+    grad.addColorStop(1 - f * 0.7, 'rgba(0,0,0,0.55)');
+    grad.addColorStop(1 - f * 0.35, 'rgba(0,0,0,0.12)');
     grad.addColorStop(1, 'rgba(0,0,0,0)');
     featherCtx.globalCompositeOperation = 'destination-in';
     featherCtx.fillStyle = grad;
