@@ -14,9 +14,7 @@
     scrollCue: document.getElementById('scroll-cue'),
     b1: document.getElementById('b1'),
     b2: document.getElementById('b2'),
-    b2q: document.getElementById('b2q'),
     b3: document.getElementById('b3'),
-    b3q: document.getElementById('b3q'),
     b4: document.getElementById('b4'),
     nodesSvg: document.getElementById('nodes-svg'),
     c1: document.getElementById('node-circle-1'),
@@ -24,8 +22,9 @@
     c3: document.getElementById('node-circle-3'),
     l1: document.getElementById('node-line-1'),
     l2: document.getElementById('node-line-2'),
-    requestCallBtn: document.getElementById('request-call-btn'),
-    callRequestedMsg: document.getElementById('call-requested-msg')
+    icon1: document.getElementById('node-icon-1'),
+    icon2: document.getElementById('node-icon-2'),
+    icon3: document.getElementById('node-icon-3')
   };
 
   let groups = [];
@@ -255,9 +254,13 @@
     ctx.clearRect(0, 0, w, h);
     const vc = y + vh / 2;
     const span = (a, b, v) => Math.max(0, Math.min(1, (v - a) / (b - a)));
-    const A1 = anchor(els.b1), A2 = anchor(els.b2), A2q = anchor(els.b2q);
-    const A3 = anchor(els.b3), A3q = anchor(els.b3q), A4 = anchor(els.b4);
+    const A1 = anchor(els.b1), A2 = anchor(els.b2);
+    const A3 = anchor(els.b3), A4 = anchor(els.b4);
     if (!A1) return;
+    // virtual pivots standing in for the removed quote blocks — keep the
+    // same crossfade/interlude timing without needing extra DOM anchors
+    const A2q = A2 + vh * 0.55;
+    const A3q = A3 + vh * 0.5;
     // overall image level: quieter, and it breathes — dips while a text block
     // is centered on screen, rises in the space between blocks
     const base = CONFIG.imageOpacity;
@@ -314,27 +317,35 @@
     nodesRun = true;
     const cs = [els.c1, els.c2, els.c3];
     const ls = [els.l1, els.l2];
+    const icons = [els.icon1, els.icon2, els.icon3];
     cs.forEach((c, i) => {
       if (!c) return;
-      c.style.transition = 'opacity 0.6s ease ' + (i * 150) + 'ms';
+      c.style.transition = 'opacity 0.6s ease ' + (i * 100) + 'ms';
       c.style.opacity = '1';
     });
-    const fill = (c, d) => setTimeout(() => {
-      if (!c) return;
-      c.style.transition = 'fill-opacity 0.5s ease, stroke 0.5s ease';
-      c.style.fillOpacity = '1';
-      c.style.stroke = '#C17D3C';
+    const fill = (c, icon, d) => setTimeout(() => {
+      if (c) {
+        c.style.transition = 'fill-opacity 0.5s ease, stroke 0.5s ease';
+        c.style.fillOpacity = '1';
+        c.style.stroke = '#C17D3C';
+      }
+      if (icon) {
+        setTimeout(() => {
+          icon.style.transition = 'opacity 0.6s ease';
+          icon.style.opacity = '1';
+        }, 150);
+      }
     }, d);
     const draw = (l, d) => setTimeout(() => {
       if (!l) return;
-      l.style.transition = 'stroke-dashoffset 0.7s ease';
+      l.style.transition = 'stroke-dashoffset 0.5s ease';
       l.style.strokeDashoffset = '0';
     }, d);
-    fill(cs[0], 550);
-    draw(ls[0], 1100);
-    fill(cs[1], 1800);
-    draw(ls[1], 2350);
-    fill(cs[2], 3050);
+    fill(cs[0], icons[0], 300);
+    draw(ls[0], 600);
+    fill(cs[1], icons[1], 1000);
+    draw(ls[1], 1300);
+    fill(cs[2], icons[2], 1700);
   }
 
   // ---------- parallax float + motion blur ----------
@@ -378,21 +389,6 @@
     raf = requestAnimationFrame(frame);
   }
 
-  // ---------- request-a-call placeholder ----------
-
-  function setupRequestCall() {
-    if (!els.requestCallBtn) return;
-    let requested = false;
-    els.requestCallBtn.addEventListener('click', () => {
-      if (requested) return;
-      requested = true;
-      // Placeholder: no backend wired up yet. Replace with a real submission
-      // (fetch to a webhook/API) when that's ready.
-      els.requestCallBtn.textContent = 'Call requested ✓';
-      if (els.callRequestedMsg) els.callRequestedMsg.hidden = false;
-    });
-  }
-
   function init() {
     groups = [];
     initSequences();
@@ -401,7 +397,6 @@
     measure();
     setupObserver();
     prepNodes();
-    setupRequestCall();
     lastY = window.scrollY;
     vel = 0;
     t0 = performance.now();
