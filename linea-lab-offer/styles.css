@@ -345,6 +345,7 @@ em {
 }
 
 .cta-primary {
+  position: relative;
   display: inline-block;
   padding: 17px 44px;
   background: var(--accent);
@@ -359,6 +360,56 @@ em {
 .cta-primary:hover {
   background: var(--accent-hover-btn);
   color: var(--ink);
+}
+
+.cta-label {
+  position: relative;
+}
+
+.cta-particles {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.cta-particles i {
+  position: absolute;
+  bottom: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240, 180, 120, 1), rgba(193, 125, 60, 0) 68%);
+  filter: blur(2.5px);
+  opacity: 0;
+  animation: cta-float 3.2s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.cta-primary:hover .cta-particles i {
+  animation-play-state: running;
+}
+
+.cta-particles i:nth-child(1) { left: 6%;  width: 10px; height: 10px; animation-delay: 0s;    --drift: 8px; }
+.cta-particles i:nth-child(2) { left: 20%; width: 15px; height: 15px; animation-delay: 0.5s;  --drift: -10px; }
+.cta-particles i:nth-child(3) { left: 35%; width: 11px; height: 11px; animation-delay: 1.05s; --drift: 6px; }
+.cta-particles i:nth-child(4) { left: 50%; width: 14px; height: 14px; animation-delay: 0.3s;  --drift: -7px; }
+.cta-particles i:nth-child(5) { left: 65%; width: 10px; height: 10px; animation-delay: 1.4s;  --drift: 9px; }
+.cta-particles i:nth-child(6) { left: 80%; width: 16px; height: 16px; animation-delay: 0.85s; --drift: -12px; }
+.cta-particles i:nth-child(7) { left: 93%; width: 11px; height: 11px; animation-delay: 1.7s;  --drift: 7px; }
+
+@keyframes cta-float {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.8); }
+  15% { opacity: 0.35; transform: translate(0, -14px) scale(0.9); }
+  50% { opacity: 1; transform: translate(calc(var(--drift, 8px) * 0.5), -46px) scale(1.05); }
+  100% { opacity: 0; transform: translate(var(--drift, 8px), -92px) scale(1.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-particles i {
+    animation: none;
+    opacity: 0;
+  }
 }
 
 /* ---------- team ---------- */

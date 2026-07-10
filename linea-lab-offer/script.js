@@ -181,6 +181,41 @@
     ctx.globalAlpha = 1;
   }
 
+  // cover-fit draw with the top and bottom edges feathered to transparent —
+  // used for images that drift vertically, so the drift never exposes a
+  // hard-cut edge where the cover crop runs out of overscan
+  let featherCanvas, featherCtx;
+  function drawCoverFeathered(ctx, img, w, h, alpha, dy) {
+    if (!img || alpha <= 0.004) return;
+    if (!featherCanvas) {
+      featherCanvas = document.createElement('canvas');
+      featherCtx = featherCanvas.getContext('2d');
+    }
+    if (featherCanvas.width !== w || featherCanvas.height !== h) {
+      featherCanvas.width = w;
+      featherCanvas.height = h;
+    }
+    featherCtx.globalCompositeOperation = 'source-over';
+    featherCtx.clearRect(0, 0, w, h);
+    const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+    const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+    featherCtx.drawImage(img, (w - dw) / 2, (h - dh) / 2 + (dy || 0), dw, dh);
+    const fade = Math.min(h * 0.22, 220);
+    const f = fade / h;
+    const grad = featherCtx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(f, 'rgba(0,0,0,1)');
+    grad.addColorStop(1 - f, 'rgba(0,0,0,1)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    featherCtx.globalCompositeOperation = 'destination-in';
+    featherCtx.fillStyle = grad;
+    featherCtx.fillRect(0, 0, w, h);
+    featherCtx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(featherCanvas, 0, 0);
+    ctx.globalAlpha = 1;
+  }
+
   // ---------- blueprint interlude ----------
 
   function buildBlueprint() {
@@ -300,7 +335,7 @@
       if (ct > 0 && ct < 1) {
         const cEnv = Math.sin(ct * Math.PI);
         const rise = (0.5 - ct) * vh * 0.5;
-        drawCover(ctx, cityImg, w, h, cEnv * level, rise);
+        drawCoverFeathered(ctx, cityImg, w, h, cEnv * level, rise);
       }
     }
   }
