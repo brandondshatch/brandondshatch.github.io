@@ -416,6 +416,10 @@
     vel = 0;
     t0 = performance.now();
     window.addEventListener('resize', measure);
+    window.addEventListener('load', measure);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(measure);
+    }
     raf = requestAnimationFrame(frame);
   }
 
