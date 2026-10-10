@@ -386,6 +386,8 @@ Object.assign(SFX, {
     for (let k = 0; k < 3; k++) { blip(700, t + k * 0.5, 0.25, 0.05, 0.5, 1300); blip(1300, t + k * 0.5 + 0.25, 0.25, 0.05, 0.5, 700); }
   },
   sting() { if (!AC) return; const t = now(); blip(1500, t, 0.15, 0.1, 0.125, 900); noise(t, 0.1, 0.3, 'highpass', 4000); },
+  crashBig() { if (!AC) return; const t = now(); noise(t, 0.35, 0.8, 'lowpass', 3000, 0.7, null, 300); blip(1200, t, 0.3, 0.1, 0.5, 120); blip(600, t + 0.05, 0.25, 0.08, 0.25, 90); },
+  carAlarm() { if (!AC) return; const t = now(); for (let k = 0; k < 8; k++) blip(k % 2 ? 900 : 1300, t + k * 0.18, 0.16, 0.06, 0.5); },
   tally() { if (!AC) return; blip(mf(84 + Math.floor(rand() * 3) * 2), now(), 0.03, 0.05, 0.5); },
 });
 // a looping 8-bit buzz for a bee swarm; returns a function that stops it
@@ -660,6 +662,10 @@ function buildStreet(demo) {
     if (!h.route && rand() < 0.55) obs.push(mk('sign', -128, y0 + rr(195, 235), { hx: 3, hy: 3, h: 40 }));
     if (rand() < 0.4) obs.push(mk('trash', -80, y0 + 236, { hx: 9, hy: 9, h: 28 }));
     if (i % 4 === 2) obs.push(mk('hydrant', -36, y0 + rr(20, 100), { hx: 5, hy: 5, h: 24 }));
+    // a parked car in the driveway (windshields crack, alarms go off)
+    if (!h.route && rand() < 0.45) { h.parked = true; obs.push(mk('parked', -215, y0 + 275, { hx: 46, hy: 22, h: 44, ax: true, col: pick(['#b5532c', '#3c78c4', '#7a8a3a', '#8c3b8f', '#c9b88a', '#5a5a64']) })); }
+    // flower pots on the porch
+    if (!h.route && rand() < 0.6) obs.push(mk('pot', -302, y0 + pick([124, 176]), { hx: 5, hy: 5, h: 20 }));
     // breakable lawn ornaments on houses that aren't on the route
     if (!h.route) {
       const nOrn = rand() < 0.7 ? 1 + (rand() < 0.4 ? 1 : 0) : 0;
@@ -679,7 +685,7 @@ function buildStreet(demo) {
       if (t === 'dog' && !dogLots.has(i)) obs.push(mk('dog', -250, y0 + rr(90, 220), { hx: 11, hy: 6, h: 22, col: pick(['#8b5a2b', '#2a2622', '#d9c7a3', '#a8742f']) }));
       if (t === 'mormons') obs.push(mk('mormons', -60, y0 + 150, { hx: 24, hy: 7, h: 62, label: 'MORMON MISSIONARIES' }));
       if (t === 'breakdancer') { obs.push(mk('breakdancer', -66, y0 + 150, { hx: 14, hy: 12, h: 40 })); obs.push(mk('boombox', -40, y0 + 160, { hx: 8, hy: 5, h: 14 })); }
-      if (t === 'bigwheel' && !L.fence) obs.push(mk('bigwheel', -300, y0 + 276, { hx: 12, hy: 8, h: 34 }));
+      if (t === 'bigwheel' && !L.fence && !h.parked) obs.push(mk('bigwheel', -300, y0 + 276, { hx: 12, hy: 8, h: 34 }));
       if (t === 'mower') obs.push(mk('mower', rr(-290, -150), y0 + 205, { hx: 15, hy: 8, h: 50, dir: rand() < 0.5 ? 1 : -1 }));
       if (t === 'skater') obs.push(mk('skater', -58, y0 + rr(60, 240), { hx: 8, hy: 8, h: 58 }));
       if (t === 'pioneer') obs.push(mk('pioneer', -52, y0 + rr(40, 240), { hx: 8, hy: 6, h: 60, label: 'PIONEER SISTER', col: pick(['#3a7d6b', '#8a3b5c', '#4a5a9a', '#b5683a']) }));
@@ -699,8 +705,6 @@ function buildStreet(demo) {
     donuts.push({ x: 196, y: DS_Y - 20, taken: false });
     for (const i of shuffle([2, 5, 7, 12, 15, 17]).slice(0, 2)) donuts.push({ x: pick([-60, 20, 120]), y: START + i * LOT + rr(40, 240), taken: false });
     // the angel shows up once a day (twice later in the week)
-    angels.push({ st: 'wait', trig: START + Math.floor(rr(2, 6)) * LOT, x: 0, y: 0, z: 0, h: null, t: 0 });
-    if (G.day >= 3) angels.push({ st: 'wait', trig: START + Math.floor(rr(10, 14)) * LOT, x: 0, y: 0, z: 0, h: null, t: 0 });
   }
   carTimer = 140;
 }
@@ -891,11 +895,12 @@ function deliver(h, kind, m) {
 function hitHouse(h, rel, z) {
   for (let w = 0; w < 2; w++) {
     const [a, b] = WINS[w];
-    if (rel >= a && rel <= b && z >= WZ0 && z <= WZ1) {
+    if (rel >= a && rel <= b) {
       if (h.broken[w]) { SFX.thud(); return; }
-      h.broken[w] = true; SFX.glass(); G.stats.windows++; G.shake = Math.max(G.shake, 6);
+      h.broken[w] = true; SFX.glass(); SFX.crashBig(); G.stats.windows++; G.shake = Math.max(G.shake, 9);
+      burst(-330, h.y0 + (a + b) / 2, 70, 'CRASH!');
       for (let i = 0; i < 22; i++) parts.push({ x: -328, y: h.y0 + (a + b) / 2 + rr(-15, 15), z: (WZ0 + WZ1) / 2 + rr(-15, 15), vx: rr(0.5, 4), vy: rr(-2, 2), vz: rr(-1, 4), life: 60, kind: 'glass' });
-      if (G.t - G.lastAwake > 1500 && G.t - G.lastCounsel > 300 && rand() < 0.15) {
+      if (G.t - G.lastAwake > 1200 && G.t - G.lastCounsel > 300 && rand() < 0.2) {
         G.lastAwake = G.t;
         setTimeout(() => { SFX.shriek(); float(-330, h.y0 + (a + b) / 2, 120, 'EEEEEK!', '#ff9ad0'); }, 250);
         setTimeout(() => boy("That's why they call it the Awake."), 1400);
@@ -906,9 +911,17 @@ function hitHouse(h, rel, z) {
       return;
     }
   }
-  if (rel >= 126 && rel <= 174 && z < 72) { deliver(h, 'porch'); return; }
+  if (rel >= 126 && rel <= 174) { deliver(h, 'porch'); return; }
+  // porch light beside the door
+  if (rel >= 108 && rel <= 125 && z > 30 && !h.lightBroken) {
+    h.lightBroken = true; SFX.glass(); burst(-330, h.y0 + 120, 62, 'POP!');
+    if (h.route) { if (!h.damaged) { h.damaged = true; float(-330, h.y0 + 150, 110, 'ROUTE CANCELLED!', '#ff6b6b'); setTimeout(SFX.cancel, 350); } }
+    else { G.score += 50; float(-330, h.y0 + 120, 90, '50', '#fff'); }
+    registerBreak(); return;
+  }
   SFX.thud();
 }
+function burst(x, y, z, text, col) { pows.push({ x, y, z, t: 40, max: 40, text, col }); }
 function releaseBees(tree) {
   tree.hiveOut = true;
   const b = mk('bees', tree.x + 10, tree.y, { hx: 10, hy: 9, h: 70, act: true, ct: 330, label: 'BEES!' });
@@ -934,9 +947,13 @@ function magHitsObstacle(o) {
     case 'dog': if (!o.down) { o.down = true; o.dt = 150; o.solid = false; o.st = 'done'; pts(100); SFX.yelp(); } break;
     case 'mormons': if (o.st !== 'trade') { o.st = 'trade'; o.vy = 0; pts(300, 'LITERATURE SWAP! 300', '#8ef0a0'); bubble(o, "WE'LL READ YOURS IF YOU READ OURS!", 160); SFX.bling(); } break;
     case 'breakdancer': if (!o.down) { o.down = true; pts(150); SFX.thud(); } break;
-    case 'trash': if (!o.down) { o.down = true; o.solid = false; pts(50); SFX.metal(); debris(o, '#a9afb7', 8); registerBreak(); } break;
-    case 'gnome': case 'flamingo': case 'birdbath':
-      if (!o.down) { o.down = true; o.solid = false; pts(100); SFX.smash(); G.shake = Math.max(G.shake, 4); debris(o, o.t === 'flamingo' ? '#ff7eb6' : o.t === 'gnome' ? '#d93a2a' : '#b9b9c0', 16); registerBreak(); }
+    case 'trash': if (!o.down) { o.down = true; o.solid = false; pts(50); SFX.metal(); burst(o.x, o.y, 30, 'CLANG!'); debris(o, '#a9afb7', 8); registerBreak(); } break;
+    case 'parked':
+      if (!o.cracked) { o.cracked = true; o.alarm = 110; pts(150); SFX.glass(); SFX.carAlarm(); burst(o.x, o.y, 50, 'CRACK!'); G.shake = Math.max(G.shake, 6); debris(o, '#bfe3f2', 12); registerBreak(); }
+      else SFX.clang();
+      break;
+    case 'pot': case 'gnome': case 'flamingo': case 'birdbath':
+      if (!o.down) { o.down = true; o.solid = false; pts(100); SFX.smash(); burst(o.x, o.y, 30, 'SMASH!'); G.shake = Math.max(G.shake, 4); debris(o, o.t === 'flamingo' ? '#ff7eb6' : o.t === 'gnome' ? '#d93a2a' : o.t === 'pot' ? '#c4622d' : '#b9b9c0', 16); registerBreak(); }
       break;
     case 'sign': case 'beware': if (!o.down) { o.down = true; pts(25); SFX.thud(); } break;
     case 'tree': if (o.hive && !o.hiveOut) { pts(50, 'BEEHIVE! 50', '#ffe14d'); releaseBees(o); } else SFX.thud(); break;
@@ -1212,7 +1229,7 @@ function updateMags() {
         if (!h.mbBroken && Math.abs(m.x - MBX) < 12 && Math.abs(rel - MBY) < 14 && m.z > 14 && m.z < 56) {
           if (h.route || h.angel && !h.angelDone) deliver(h, 'mail', m);
           else {
-            h.mbBroken = true; G.score += 100; float(MBX, h.y0 + MBY, 60, '100', '#fff'); SFX.metal(); G.shake = Math.max(G.shake, 4);
+            h.mbBroken = true; G.score += 100; float(MBX, h.y0 + MBY, 60, '100', '#fff'); SFX.metal(); burst(MBX, h.y0 + MBY, 45, 'BONK!'); G.shake = Math.max(G.shake, 4);
             debris({ x: MBX, y: h.y0 + MBY }, '#55585f', 10); registerBreak();
           }
           stopMag(m); continue;
@@ -1586,6 +1603,24 @@ function drawObstacle(o) {
       break;
     }
     case 'car': case 'police': case 'cargroup': if (o.ax) drawCarX(o); else drawCar(o); break;
+    case 'parked': {
+      drawCarX(o);
+      if (o.cracked) {
+        const cx = o.x - 6, cy = o.y - o.hy + 3;
+        for (const [dx, dz] of [[-14, 8], [12, 7], [-8, -7], [10, -6], [2, 9]]) line3([cx, cy - 0.5, 34], [cx + dx, cy - 0.5, 34 + dz], '#ffffff', 1);
+        if (o.alarm > 0) { o.alarm--; if (o.alarm % 16 < 8) { ctx.fillStyle = 'rgba(255,240,150,.85)'; for (const yy of [o.y - o.hy + 6, o.y + o.hy - 6]) { ctx.beginPath(); ctx.arc(sx(o.x + o.hx + 1, yy), sy(o.x + o.hx + 1, yy, 17), 4, 0, 7); ctx.fill(); } } }
+      }
+      break;
+    }
+    case 'pot': {
+      if (o.down) { shards(o, ['#c4622d', '#8a3f1a', '#5a8a3a']); break; }
+      const PX = sx(o.x, o.y), PY = sy(o.x, o.y, 6);
+      ctx.save(); ctx.translate(PX, PY); ctx.scale(SC, SC);
+      ctx.fillStyle = '#c4622d'; ctx.beginPath(); ctx.moveTo(-6, -12); ctx.lineTo(6, -12); ctx.lineTo(4, 0); ctx.lineTo(-4, 0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#3f8a37'; ctx.beginPath(); ctx.arc(0, -15, 5, 0, 7); ctx.fill();
+      for (const [a, b, c] of [[-3, -18, '#ff6fa0'], [3, -17, '#ffe14d'], [0, -20, '#fff']]) { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(a, b, 1.8, 0, 7); ctx.fill(); }
+      ctx.restore(); break;
+    }
     case 'gnome': {
       if (o.down) { shards(o, ['#d93a2a', '#3a6fd9', '#f4f4f4']); break; }
       shadow(o.x, o.y, 7);
@@ -1837,13 +1872,13 @@ function drawAngel(a) {
   ctx.restore();
 }
 function drawPow(w) {
-  const X = sx(w.x, w.y), Y = sy(w.x, w.y, 40);
-  const age = 50 - w.t, sc = age < 8 ? 0.4 + age * 0.09 : 1.12;
+  const X = sx(w.x, w.y), Y = sy(w.x, w.y, w.z == null ? 40 : w.z);
+  const age = (w.max || 50) - w.t, big = w.text ? 0.8 : 1.12, sc = (age < 8 ? 0.4 + age * 0.09 : 1.12) * big / 1.12;
   ctx.save(); ctx.translate(X, Y); ctx.scale(sc, sc); ctx.rotate(-0.12);
   ctx.globalAlpha = Math.min(1, w.t / 12);
   const spike = (r1, r2, n, col) => { ctx.beginPath(); for (let i = 0; i < n * 2; i++) { const a = i / (n * 2) * Math.PI * 2, r = i % 2 ? r2 : r1 * (0.85 + ((i * 7) % 5) * 0.06); ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r * 0.8); } ctx.closePath(); ctx.fillStyle = col; ctx.fill(); };
   spike(52, 26, 12, '#d42a2a'); spike(42, 22, 12, '#ffe14d');
-  txt('POW!', 0, 7, 18, '#d42a2a', 'center', '#000');
+  txt(w.text || 'POW!', 0, 7, w.text ? 14 : 18, '#d42a2a', 'center', '#000');
   ctx.restore();
 }
 
@@ -1884,7 +1919,7 @@ function drawHouse(h) {
   }
   faceTextX(HX1 + 1, h.y0 + 150, 80, String(h.num), 6, r ? '#3a2a1a' : '#9a9aa8');
   // porch light
-  ctx.fillStyle = r ? '#ffe9a0' : '#555'; ctx.beginPath(); ctx.arc(sx(HX1 + 1, h.y0 + 120), sy(HX1 + 1, h.y0 + 120, 62), 2.2, 0, 7); ctx.fill();
+  ctx.fillStyle = h.lightBroken ? '#1a1a1a' : r ? '#ffe9a0' : '#c9c08a'; ctx.beginPath(); ctx.arc(sx(HX1 + 1, h.y0 + 120), sy(HX1 + 1, h.y0 + 120, 62), 2.6, 0, 7); ctx.fill();
   // roof
   const e = 10;
   poly([[HX0 - e, y0 - e, HZ - 3], [RIDGE, y0 - e, RZ], [RIDGE, y1 + e, RZ], [HX0 - e, y1 + e, HZ - 3]], shade(roof, -0.15));
@@ -2235,9 +2270,8 @@ function drawLogo(cx, cy) {
     ctx.fillStyle = '#7a4a0c'; ctx.fillText(str, 2, y + 2, w - 40);
     ctx.fillStyle = '#5a2c0e'; ctx.fillText(str, 0, y, w - 40);
   };
-  emboss('My Book of', -28, 17);
-  emboss('Magazine Route Boy', 18, 41);
-  ctx.font = `11px ${LOGOFONT}`; ctx.fillStyle = '#7a4a0c'; ctx.fillText('Seven Days of Doorsteps', 0, 48, w - 40);
+  emboss('Magazine', -8, 44);
+  emboss('Route Boy', 40, 44);
   ctx.restore();
 }
 
@@ -2303,7 +2337,7 @@ function drawDayIntro() {
     'Lit-up houses take the magazines. Dark ones are "not interested."',
     'Mailbox: 250. Porch: 100. A window on your route: cancelled.',
     'Porch of a dark house: new interest. Their mailbox? It breaks.',
-    'Follow the angel. The house it points to is definitely interested.',
+    'Magazines break windows, pots, lights and windshields. On your route, that cancels them.',
     'Find a donut for a sugar rush. Dogs hate that.',
     'Deliver to every house for a perfect route bonus.',
     'Go in through the doors of the Kingdom Hall. Not the wall.',
