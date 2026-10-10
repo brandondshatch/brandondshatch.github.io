@@ -128,7 +128,7 @@
   </div>
 </main>
 <p class="help key-only"><b>LEFT/RIGHT</b> steer &nbsp; <b>UP</b> run faster &nbsp; <b>DOWN</b> slow down &nbsp; <b>SPACE</b> throw magazine &nbsp; <b>P</b> pause &nbsp; <b>M</b> mute<br>
-Bright houses are on your route. Hit the mailbox or the porch. Don't break their windows.</p>
+Bright houses are your Return Visits (RVs). Hit the mailbox or the porch. Break an RV's window and they're a Do Not Call.</p>
 <p class="help touch-only">Tap a card to pick it, tap again to start. Turn off silent mode to hear sound.</p>
 
 <script>
@@ -308,7 +308,7 @@ const SFX = {
     }
   },
   yelp() { if (!AC) return; tone(1200, now(), 0.25, 'sawtooth', 0.12, null, 500); },
-  horn() { if (!AC) return; const t = now(); for (const f of [330, 415]) tone(f, t, 0.45, 'square', 0.1, null, f * 0.98); },
+  horn() { if (!AC) return; const t = now(); for (const d of [0, 0.32]) for (const f of [330, 415]) { blip(f, t + d, d ? 0.42 : 0.24, 0.13, 0.5, f * 0.97); blip(f * 2, t + d, d ? 0.42 : 0.24, 0.04, 0.25); } },
   meep() { if (!AC) return; const t = now(); for (const d of [0, 0.22]) { tone(620, t + d, 0.15, 'square', 0.09); tone(780, t + d, 0.15, 'square', 0.07); } },
   siren() {
     if (!AC) return; const t = now(), o = AC.createOscillator(), g = AC.createGain(), l = AC.createOscillator(), lg = AC.createGain();
@@ -506,16 +506,19 @@ function say(text, pitch, rate, force, voice) {
     if (!('speechSynthesis' in window)) return;
     const t = performance.now();
     if (!force && t < sayUntil) return;
-    speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     if (voice) u.voice = voice;
     u.pitch = pitch == null ? 1.3 : pitch; u.rate = rate || 1.05; u.volume = 1;
-    speechSynthesis.speak(u);
+    // speaking immediately after cancel() gets dropped in some browsers, so leave a gap
+    if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(() => speechSynthesis.speak(u), 80); }
+    else speechSynthesis.speak(u);
     sayUntil = t + 600 + text.length * 70;
   } catch (e) {}
 }
 // the boy: bored, flat, a little valley
 const boy = text => say(text, 0.72, 0.78, true, boyVoice);
+// a line from the boy that also shows in a speech bubble over his head
+function boyLine(text, t) { boy(text); P.bub = { s: text.toUpperCase(), t: t || 170 }; }
 let wowAt = 0;
 function ohWow(force) { const t = performance.now(); if (force || t - wowAt > 5000) { wowAt = t; boy('Ohh, wow.'); } }
 
@@ -622,7 +625,7 @@ function saveHi() { if (G.score > G.hi) { G.hi = G.score; try { localStorage.set
 
 const P = { boost: 0, x: -60, y: 0, speed: CRUISE, anim: 0, throwT: 0, crashT: 0, inv: 0, cool: 0, crashBy: null };
 let WORLD = 'street';
-let houses = [], obs = [], mags = [], bundles = [], parts = [], floats = [], decor = [], people = [], donuts = [], pows = [], angels = [];
+let houses = [], obs = [], mags = [], bundles = [], parts = [], floats = [], decor = [], people = [], donuts = [], pows = [], angels = [], bibles = [];
 let carTimer = 200, hallTimer = 0;
 
 // =====================================================================
@@ -639,6 +642,7 @@ function makeLooks() {
   }
   const idx = shuffle([...Array(NL).keys()]);
   G.routes = Array(NL).fill(false);
+  G.dnc = Array(NL).fill(false);
   for (let k = 0; k < DIFFS[G.diff].route; k++) G.routes[idx[k]] = true;
 }
 
@@ -649,13 +653,13 @@ function mk(t, x, y, extra) {
 function buildStreet(demo) {
   WORLD = 'street';
   stopBuzz();
-  houses = []; obs = []; mags = []; bundles = []; parts = []; floats = []; decor = []; people = []; donuts = []; pows = []; angels = [];
+  houses = []; obs = []; mags = []; bundles = []; parts = []; floats = []; decor = []; people = []; donuts = []; pows = []; angels = []; bibles = [];
   const d = demo ? 1 : DIFFS[G.diff].mult * (1 + G.day * 0.16);
   // guaranteed yard dogs that chase you down the street
   const dogLots = new Set(shuffle([...Array(NL - 3).keys()].map(k => k + 2)).slice(0, demo ? 0 : Math.min(5, Math.round((2 + G.day / 2) * DIFFS[G.diff].mult))));
   for (let i = 0; i < NL; i++) {
     const L = G.looks[i], y0 = START + i * LOT;
-    const h = Object.assign({ i, y0, route: G.routes[i], delivered: false, damaged: false, interest: false, broken: [false, false], robe: false, mbBroken: false, angel: false, angelDone: false }, L);
+    const h = Object.assign({ i, y0, route: G.routes[i] && !G.dnc[i], dnc: G.dnc[i], delivered: false, damaged: false, interest: false, broken: [false, false], robe: false, mbBroken: false, angel: false, angelDone: false }, L);
     houses.push(h);
     if (L.fence && i > 0) obs.push(mk('fence', (HX0 - 150) / 2, y0 + 3, { hx: (-150 - HX0) / 2, hy: 3, h: 22, kind: L.fence }));
     if (L.tree) obs.push(mk('tree', rr(-250, -180), y0 + rr(70, 220), { hx: 7, hy: 7, h: 120, hive: !demo && i > 1 && rand() < 0.45 }));
@@ -671,6 +675,7 @@ function buildStreet(demo) {
       const nOrn = rand() < 0.7 ? 1 + (rand() < 0.4 ? 1 : 0) : 0;
       for (let k = 0; k < nOrn; k++) obs.push(mk(pick(['gnome', 'flamingo', 'birdbath', 'gnome', 'flamingo']), rr(-300, -170), y0 + (k ? rr(185, 240) : rr(60, 115)), { hx: 5, hy: 5, h: 30 }));
     }
+    if (h.dnc) obs.push(mk('dncsign', -132, y0 + 205, { hx: 3, hy: 3, h: 40 }));
     if (dogLots.has(i)) {
       obs.push(mk('dog', -265, y0 + rr(90, 200), { hx: 11, hy: 6, h: 22, chaser: true, col: pick(['#8b5a2b', '#2a2622', '#a8742f']) }));
       obs.push(mk('beware', -132, y0 + rr(40, 110), { hx: 3, hy: 3, h: 40 }));
@@ -703,6 +708,8 @@ function buildStreet(demo) {
   decor.push({ t: 'donutshop', x: 390, y: DS_Y + 110, hx: 90, hy: 110 });
   if (!demo) {
     donuts.push({ x: 196, y: DS_Y - 20, taken: false });
+    // one green Bible per day: an extra life
+    bibles = [{ x: pick([-62, -200, 20, 110]), y: START + Math.floor(rr(4, 17)) * LOT + rr(30, 250), taken: false }];
     for (const i of shuffle([2, 5, 7, 12, 15, 17]).slice(0, 2)) donuts.push({ x: pick([-60, 20, 120]), y: START + i * LOT + rr(40, 240), taken: false });
     // the angel shows up once a day (twice later in the week)
   }
@@ -768,6 +775,7 @@ function startGame() {
 }
 function beginDay() {
   G.state = 'dayIntro'; G.t = 0; G.mags = START_MAGS; stopSong(); G.breaks = []; P.boost = 0;
+  G.awakeToday = false; P.bub = null;
   G.stats = { delivered: 0, mail: 0, interest: 0, windows: 0, hallHits: 0, frames: 0, hallBonus: 0, hallDone: false };
   buildStreet(false);
   P.x = -60; P.y = 40; P.speed = CRUISE; P.crashT = 0; P.inv = 0; P.anim = 0; camY = P.y;
@@ -802,27 +810,31 @@ function finishDay() {
   const routeHouses = houses.filter(h => h.route);
   const kept = routeHouses.filter(h => h.delivered && !h.damaged).length;
   const perfect = routeHouses.length > 0 && kept === routeHouses.length;
-  const next = houses.map(h => h.route ? (h.delivered && !h.damaged) : h.interest);
+  const next = houses.map(h => !G.dnc[h.i] && (h.route ? (h.delivered && !h.damaged) : h.interest));
   let joined = houses.filter(h => !h.route && h.interest).length;
   let perfectBonus = 0;
   if (perfect) {
     perfectBonus = 1500; G.score += perfectBonus;
-    const outside = houses.filter((h, i) => !next[i]);
+    const outside = houses.filter((h, i) => !next[i] && !G.dnc[i]);
     if (outside.length) { next[pick(outside).i] = true; joined++; }
   }
-  const lost = routeHouses.length - kept;
+  const lost = routeHouses.filter(h => !h.delivered && !h.damaged).length;
+  const newDnc = routeHouses.filter(h => h.damaged).length;
+  const dncTotal = G.dnc.filter(Boolean).length;
   G.routes = next;
   const remaining = next.filter(Boolean).length;
   const hours = (st.frames / 60 / 60 * 3).toFixed(1);
   let headline;
   if (perfect) headline = 'PERFECT ROUTE! Every householder got their magazines.';
+  else if (newDnc >= 2) headline = `${newDnc} return visits are now DO NOT CALLS. The elders want a word.`;
   else if (st.windows >= 3) headline = 'Neighborhood reports a rash of broken windows.';
-  else if (lost >= 4) headline = `${lost} householders cancelled. They never got their magazines.`;
-  else if (lost > 0) headline = `${lost} on your route stopped taking the magazines.`;
+  else if (newDnc === 1) headline = 'One return visit is now a DO NOT CALL. Mind the windows.';
+  else if (lost >= 4) headline = `${lost} return visits were missed and dropped off the route.`;
+  else if (lost > 0) headline = `${lost} return visit${lost > 1 ? 's' : ''} missed today.`;
   else headline = 'Steady work. The service overseer is pleased.';
-  G.report = { kept, lost, joined, perfect, perfectBonus, remaining, hours, headline, studies: Math.floor(st.hallHits / 4) };
+  G.report = { newDnc, dncTotal, kept, lost, joined, perfect, perfectBonus, remaining, hours, headline, studies: Math.floor(st.hallHits / 4) };
   saveHi();
-  if (remaining === 0) { G.endReason = 'Everyone on your route cancelled.'; gameOver(); return; }
+  if (remaining === 0) { G.endReason = 'No return visits left on your route.'; gameOver(); return; }
   G.state = 'report'; G.t = 0;
   if (perfect) { SFX.fanfare(); ohWow(true); } else SFX.jingle();
 }
@@ -851,10 +863,13 @@ function throwMag() {
 }
 function crash(o) {
   P.crashT = 100; P.crashBy = o; P.speed = 0; P.boost = 0;
-  SFX.crash(); SFX.pow(); boy(o && o.t === 'bees' ? 'Ow. Bees. Dude.' : 'Ouch. Dude.'); if (o && o.t === 'bees') SFX.sting();
+  SFX.crash(); SFX.pow(); if (o && o.t === 'bees') SFX.sting();
+  // losing a life gets one of his lines; a trip in the hall doesn't cost a life
+  if (WORLD === 'street') boyLine(pick(['At least there\'s the resurrection.', 'Tough territory.', 'I\'ll make it a matter of prayer.']), 200);
+  else boyLine('Ouch. Dude.', 120);
   pows.push({ x: P.x, y: P.y, t: 50 }); G.shake = 18;
-  if (o && o.t === 'police') setTimeout(() => say('Slow down, son!', 0.8, 1, true), 700);
-  if (o && o.t === 'cargroup') setTimeout(() => say('Oh dear! Are you alright, brother?', 1.7, 1.1, true), 700);
+  if (o && o.t === 'police') setTimeout(() => say('Slow down, son!', 0.8, 1, true), 2600);
+  if (o && o.t === 'cargroup') setTimeout(() => say('Oh dear! Are you alright, brother?', 1.7, 1.1, true), 2600);
   for (let i = 0; i < 6; i++) parts.push({ x: P.x, y: P.y, z: 30, vx: rr(-3, 3), vy: rr(-2, 3), vz: rr(2, 5), life: 80, kind: 'mag' });
   if (WORLD === 'street') G.lives--;
 }
@@ -873,6 +888,7 @@ function houseAt(y) {
   return i >= 0 && i < NL ? houses[i] : null;
 }
 function deliver(h, kind, m) {
+  if (h.dnc) { SFX.thud(); return; }
   const zx = kind === 'mail' ? MBX : -320, zy = kind === 'mail' ? h.y0 + MBY : h.y0 + 150;
   if (h.angel && !h.angelDone && !h.damaged) {
     h.angelDone = true; h.interest = true; G.stats.interest++; G.stats.angel = (G.stats.angel || 0) + 1;
@@ -884,8 +900,8 @@ function deliver(h, kind, m) {
   if (h.route) {
     if (h.damaged || h.delivered) { SFX.thud(); return; }
     h.delivered = true; G.stats.delivered++;
-    if (kind === 'mail') { G.score += 250; G.stats.mail++; float(zx, zy, 60, '250 MAILBOX!', '#ffe36b'); SFX.mailbox(); ohWow(); }
-    else { G.score += 100; float(zx, zy, 60, '100 PORCH', '#fff'); SFX.porch(); }
+    if (kind === 'mail') { G.score += 250; G.stats.mail++; float(zx, zy, 60, 'RV! MAILBOX 250', '#ffe36b'); SFX.mailbox(); ohWow(); }
+    else { G.score += 100; float(zx, zy, 60, 'RV! PORCH 100', '#fff'); SFX.porch(); }
   } else {
     if (h.interest) { SFX.thud(); return; }
     h.interest = true; G.stats.interest++; G.score += 50;
@@ -900,14 +916,16 @@ function hitHouse(h, rel, z) {
       h.broken[w] = true; SFX.glass(); SFX.crashBig(); G.stats.windows++; G.shake = Math.max(G.shake, 9);
       burst(-330, h.y0 + (a + b) / 2, 70, 'CRASH!');
       for (let i = 0; i < 22; i++) parts.push({ x: -328, y: h.y0 + (a + b) / 2 + rr(-15, 15), z: (WZ0 + WZ1) / 2 + rr(-15, 15), vx: rr(0.5, 4), vy: rr(-2, 2), vz: rr(-1, 4), life: 60, kind: 'glass' });
-      if (G.t - G.lastAwake > 1200 && G.t - G.lastCounsel > 300 && rand() < 0.2) {
-        G.lastAwake = G.t;
-        setTimeout(() => { SFX.shriek(); float(-330, h.y0 + (a + b) / 2, 120, 'EEEEEK!', '#ff9ad0'); }, 250);
-        setTimeout(() => boy("That's why they call it the Awake."), 1400);
-      } else registerBreak();
-      if (h.route) {
-        if (!h.damaged) { h.damaged = true; float(-330, h.y0 + 150, 110, 'ROUTE CANCELLED!', '#ff6b6b'); setTimeout(SFX.cancel, 350); }
-      } else { G.score += 100; float(-330, h.y0 + (a + b) / 2, 100, '100', '#fff'); if (rand() < 0.35) ohWow(); }
+      // first window of the day always gets the joke; after that, now and then
+      const awake = G.t - G.lastAwake > 900 && G.t - G.lastCounsel > 240 && (!G.awakeToday || rand() < 0.3);
+      if (awake) {
+        G.lastAwake = G.t; G.awakeToday = true;
+        setTimeout(() => { SFX.shriek(); float(-330, h.y0 + (a + b) / 2, 120, 'EEEEEK!', '#ff9ad0'); bubbleAt(-330, h.y0 + (a + b) / 2, 'EEEEEK!'); }, 250);
+        setTimeout(() => boyLine("That's why they call it the Awake."), 1300);
+      }
+      registerBreak(awake);
+      if (h.route) makeDnc(h);
+      else { G.score += 100; float(-330, h.y0 + (a + b) / 2, 100, '100', '#fff'); if (rand() < 0.35) ohWow(); }
       return;
     }
   }
@@ -915,12 +933,20 @@ function hitHouse(h, rel, z) {
   // porch light beside the door
   if (rel >= 108 && rel <= 125 && z > 30 && !h.lightBroken) {
     h.lightBroken = true; SFX.glass(); burst(-330, h.y0 + 120, 62, 'POP!');
-    if (h.route) { if (!h.damaged) { h.damaged = true; float(-330, h.y0 + 150, 110, 'ROUTE CANCELLED!', '#ff6b6b'); setTimeout(SFX.cancel, 350); } }
+    if (h.route) makeDnc(h);
     else { G.score += 50; float(-330, h.y0 + 120, 90, '50', '#fff'); }
     registerBreak(); return;
   }
   SFX.thud();
 }
+// smashing a return visit's house turns it into a Do Not Call for the rest of the week
+function makeDnc(h) {
+  if (h.damaged) return;
+  h.damaged = true; G.dnc[h.i] = true;
+  float(-330, h.y0 + 150, 110, 'DO NOT CALL!', '#ff6b6b'); setTimeout(SFX.cancel, 350);
+  obs.push(mk('dncsign', -132, h.y0 + 205, { hx: 3, hy: 3, h: 40, act: true }));
+}
+function bubbleAt(x, y, s) { const o = mk('speech', x, y, { solid: false, hx: 1, hy: 1, h: 90, act: true, t: 90 }); bubble(o, s, 90); obs.push(o); }
 function burst(x, y, z, text, col) { pows.push({ x, y, z, t: 40, max: 40, text, col }); }
 function releaseBees(tree) {
   tree.hiveOut = true;
@@ -933,12 +959,14 @@ function debris(o, col, n) {
   for (let i = 0; i < n; i++) parts.push({ x: o.x, y: o.y, z: 15, vx: rr(-3, 3), vy: rr(-3, 3), vz: rr(2, 6), life: 55, kind: 'chip', col });
 }
 // a streak of property damage sometimes gets a remark
-function registerBreak() {
+function registerBreak(quiet) {
   G.breaks.push(G.t);
-  G.breaks = G.breaks.filter(t => G.t - t < 480);
-  if (G.breaks.length >= 3 && G.t - G.lastCounsel > 1800 && G.t - G.lastAwake > 300 && rand() < 0.75) {
+  G.breaks = G.breaks.filter(t => G.t - t < 600);
+  if (!quiet && G.breaks.length >= 3 && G.t - G.lastCounsel > 1200) {
     G.lastCounsel = G.t; G.breaks = [];
-    setTimeout(() => boy("Oh wow. I'm gonna get counseled."), 450);
+    // if the Awake joke is still playing, wait for it to finish
+    const wait = Math.max(450, (G.lastAwake + 215 - G.t) * 1000 / 60);
+    setTimeout(() => boyLine("Oh wow. I'm gonna get counseled."), wait);
   }
 }
 function magHitsObstacle(o) {
@@ -955,7 +983,8 @@ function magHitsObstacle(o) {
     case 'pot': case 'gnome': case 'flamingo': case 'birdbath':
       if (!o.down) { o.down = true; o.solid = false; pts(100); SFX.smash(); burst(o.x, o.y, 30, 'SMASH!'); G.shake = Math.max(G.shake, 4); debris(o, o.t === 'flamingo' ? '#ff7eb6' : o.t === 'gnome' ? '#d93a2a' : o.t === 'pot' ? '#c4622d' : '#b9b9c0', 16); registerBreak(); }
       break;
-    case 'sign': case 'beware': if (!o.down) { o.down = true; pts(25); SFX.thud(); } break;
+    case 'speech': break;
+    case 'sign': case 'beware': case 'dncsign': if (!o.down) { o.down = true; pts(25); SFX.thud(); } break;
     case 'tree': if (o.hive && !o.hiveOut) { pts(50, 'BEEHIVE! 50', '#ffe14d'); releaseBees(o); } else SFX.thud(); break;
     case 'bees': break;
     case 'bigwheel': if (!o.down) { o.down = true; o.vx = 0; pts(100); bubble(o, 'MOM!!'); SFX.thud(); } break;
@@ -1011,6 +1040,11 @@ function stepStreet() {
   }
   for (const b of bundles) if (!b.taken && Math.abs(b.x - P.x) < 18 && Math.abs(b.y - P.y) < 16 && P.crashT === 0) {
     b.taken = true; G.mags = Math.min(MAXM, G.mags + 10); SFX.pickup(); float(b.x, b.y, 50, 'MAGAZINES +10', '#ffe36b');
+  }
+  for (const b of bibles) if (!b.taken && Math.abs(b.x - P.x) < 16 && Math.abs(b.y - P.y) < 14 && P.crashT === 0) {
+    b.taken = true; G.lives = Math.min(6, G.lives + 1);
+    SFX.oneUp(); burst(P.x, P.y, 80, '1-UP', 'green'); float(P.x, P.y, 100, 'EXTRA LIFE!', '#8ef0a0');
+    setTimeout(() => boyLine('Best life ever.'), 250);
   }
   for (const d of donuts) if (!d.taken && Math.abs(d.x - P.x) < 16 && Math.abs(d.y - P.y) < 14 && P.crashT === 0) {
     d.taken = true; P.boost = 480; SFX.donut(); setTimeout(SFX.power, 300); float(d.x, d.y, 50, 'SUGAR RUSH!', '#ff9ad0');
@@ -1116,6 +1150,7 @@ function updateObstacles() {
     if (!o.act) { if (dy < 700) o.act = true; else continue; }
     o.f++; o.ph += 0.16;
     if (o.bub && --o.bub.t <= 0) o.bub = null;
+    if (o.t === 'speech' && !o.bub) { o.gone = true; continue; }
     if (o.label && !o.labeled && dy < 430) { o.labeled = 140; }
     if (o.labeled > 1) o.labeled--;
     switch (o.t) {
@@ -1185,7 +1220,7 @@ function updateObstacles() {
         }
         o.y += o.vy;
         if (o.t === 'police' && o.f % 140 === 1 && Math.abs(dy) < 900) SFX.siren();
-        if (o.vy < 0 && !o.honked && dy < 330 && dy > 0 && Math.abs(o.x - P.x) < 60) { o.honked = true; SFX.horn(); }
+        if (o.t === 'car' && !o.honked && Math.abs(dy) < 300 && Math.abs(o.x - P.x) < 110) { o.honked = true; SFX.horn(); bubble(o, 'HONK HONK!', 70); }
         if (o.y < camY - 800 || o.y > camY + 2200) o.gone = true;
         break;
       // hall
@@ -1253,7 +1288,7 @@ function updateMags() {
       if (m.x < -560) { m.done = true; m.vx = 0; }
     }
     for (const o of obs) {
-      if (o.gone || !o.act || o.t === 'bees' || o.t === 'robe' && o.st === 'hidden') continue;
+      if (o.gone || !o.act || o.t === 'bees' || o.t === 'speech' || o.t === 'robe' && o.st === 'hidden') continue;
       if (Math.abs(m.x - o.x) < o.hx + 4 && Math.abs(m.y - o.y) < o.hy + 4 && m.z < o.h) { magHitsObstacle(o); stopMag(m); break; }
     }
   }
@@ -1271,6 +1306,7 @@ function updateFx() {
   for (const f of floats) { f.z += 0.6; f.t--; }
   floats = floats.filter(f => f.t > 0);
   if (G.banner && --G.banner.t <= 0) G.banner = null;
+  if (P.bub && --P.bub.t <= 0) P.bub = null;
   for (const w of pows) w.t--;
   pows = pows.filter(w => w.t > 0);
 }
@@ -1354,6 +1390,7 @@ function folk(X, Y, k, o) {
     else if (front && o.arm === 'fist') { const w = Math.sin(o.phase * 3) * 2; ex = sxp + 6; ey = syp - 6; hx = sxp + 9 + w; hy = syp - 15; }
     else if (front && o.arm === 'wave') { const w = Math.sin(G.t * 0.3) * 3; ex = sxp + 5; ey = syp - 8; hx = sxp + 7 + w; hy = syp - 18; }
     else if (front && o.arm === 'hold') { ex = sxp + 7; ey = syp + 5; hx = sxp + 15; hy = syp + 3; }
+    else if (!front && o.bag) { const ba = a * 0.45; ex = sxp + Math.sin(ba) * 9; ey = syp + Math.cos(ba) * 9; hx = ex + Math.sin(ba) * 9; hy = ey + Math.cos(ba) * 9; }
     else { const fa = a + (mv ? 1.3 : 0.15); ex = sxp + Math.sin(a) * 9; ey = syp + Math.cos(a) * 9; hx = ex + Math.sin(fa) * 9; hy = ey + Math.cos(fa) * 9; }
     ctx.strokeStyle = col; ctx.lineWidth = 4.6;
     ctx.beginPath(); ctx.moveTo(sxp, syp); ctx.lineTo(ex, ey); ctx.lineTo(hx, hy); ctx.stroke();
@@ -1362,8 +1399,18 @@ function folk(X, Y, k, o) {
   };
   const top = o.top || '#888', topD = shade(top, -0.25);
   // back arm & leg
-  arm(-sw * 1.1, topD, false);
-  if (o.bag) { ctx.fillStyle = '#6e4220'; rrect(lean - 14, -40, 10, 14, 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillRect(lean - 13, -43, 3, 4); ctx.fillStyle = '#c0262d'; ctx.fillRect(lean - 10, -42.5, 3, 3.5); ctx.fillStyle = '#e9c33a'; ctx.fillRect(lean - 7, -43, 2.5, 4); }
+  const bagHand = arm(-sw * 1.1, topD, false);
+  if (o.bag) {
+    // square bookbag with two handles, carried at his side
+    const [bx, by] = bagHand;
+    ctx.strokeStyle = '#2a1a10'; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(bx - 4, by + 4); ctx.quadraticCurveTo(bx - 3, by - 2, bx, by - 1); ctx.quadraticCurveTo(bx + 3, by - 2, bx + 4, by + 4); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.fillRect(bx - 5, by + 2, 4, 3); ctx.fillStyle = '#c0262d'; ctx.fillRect(bx - 1, by + 2.5, 3, 2.5);
+    ctx.fillStyle = o.bagCol || '#3b2416'; ctx.fillRect(bx - 7, by + 4, 14, 12);
+    ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(bx - 7, by + 4, 14, 1.5);
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(bx - 7, by + 14, 14, 2);
+    ctx.fillStyle = '#d9b44a'; ctx.fillRect(bx - 1.5, by + 6, 3, 2);
+  }
   leg(-sw, shade(pants, -0.2));
   leg(sw, pants);
   // lower garment
@@ -1388,7 +1435,6 @@ function folk(X, Y, k, o) {
   }
   if (o.tag) { ctx.fillStyle = '#111'; ctx.fillRect(lean + 1, shY + 4, 5, 2.4); ctx.fillStyle = '#fff'; ctx.fillRect(lean + 2, shY + 5, 3, 0.6); }
   if (o.badge) { ctx.fillStyle = '#f2f2f2'; ctx.fillRect(lean + 1, shY + 4, 4, 3); }
-  if (o.bag) { ctx.strokeStyle = '#5a3418'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(lean + 5, shY + 1); ctx.lineTo(lean - 6, hipY - 4); ctx.stroke(); }
   // head
   const hx = lean + 1, hy = shY - 9;
   ctx.fillStyle = skin; ctx.fillRect(hx - 2, shY - 4, 4, 4);
@@ -1650,6 +1696,14 @@ function drawObstacle(o) {
       ctx.fillStyle = '#7ab8e0'; ctx.beginPath(); ctx.ellipse(X, sy(o.x, o.y, 25), 8, 3, 0, 0, 7); ctx.fill();
       break;
     }
+    case 'dncsign': {
+      if (o.down) { poly([[o.x - 2, o.y - 16, 1], [o.x + 14, o.y - 16, 1], [o.x + 14, o.y + 16, 1], [o.x - 2, o.y + 16, 1]], '#c62828'); break; }
+      box(o.x - 1.5, o.x + 1.5, o.y - 1.5, o.y + 1.5, 0, 34, '#6b4a2b', '#5a3a1e', '#6b4a2b');
+      frect(o.x + 2, o.y - 18, o.y + 18, 24, 46, '#c62828', '#fff');
+      faceTextX(o.x + 2.5, o.y, 39, 'DO NOT', 4.4, '#fff');
+      faceTextX(o.x + 2.5, o.y, 31, 'CALL', 5, '#fff');
+      break;
+    }
     case 'beware': {
       if (o.down) { poly([[o.x - 2, o.y - 14, 1], [o.x + 14, o.y - 14, 1], [o.x + 14, o.y + 14, 1], [o.x - 2, o.y + 14, 1]], '#f2d13a'); break; }
       box(o.x - 1.5, o.x + 1.5, o.y - 1.5, o.y + 1.5, 0, 34, '#6b4a2b', '#5a3a1e', '#6b4a2b');
@@ -1833,6 +1887,18 @@ function drawDonutShop(o) {
   for (let k = 0; k < 22; k++) { const a = k * 2.39, r = R * (0.5 + (k % 4) * 0.1); ctx.fillStyle = sp[k % 4]; ctx.fillRect(X + Math.cos(a) * r, cy - 2 + Math.sin(a) * r, 3, 1.4); }
   ctx.fillStyle = '#3f8534'; ctx.beginPath(); ctx.ellipse(X, cy, R * 0.34, R * 0.34, 0, 0, 7); ctx.fill();
 }
+function drawBible(b) {
+  shadow(b.x, b.y, 9);
+  const X = sx(b.x, b.y), Y = sy(b.x, b.y, 10 + Math.sin(G.t * 0.1) * 3);
+  ctx.save(); ctx.translate(X, Y); ctx.rotate(-0.15);
+  ctx.fillStyle = '#1f6b3a'; ctx.fillRect(-7, -9, 14, 18);
+  ctx.fillStyle = '#e9c33a'; ctx.fillRect(5, -8, 2, 16);
+  ctx.fillStyle = '#2f8a4e'; ctx.fillRect(-7, -9, 2.5, 18);
+  ctx.fillStyle = '#e9c33a'; ctx.fillRect(-3, -5, 6, 1); ctx.fillRect(-3, -2, 6, 1);
+  ctx.restore();
+  if (G.t % 24 < 12) { ctx.fillStyle = '#fff6a8'; ctx.fillRect(X + 9, Y - 12, 2, 6); ctx.fillRect(X + 7, Y - 10, 6, 2); }
+  txt('\u25BC', X, Y - 18 + Math.sin(G.t * 0.12) * 3, 7, '#8ef0a0', 'center');
+}
 function drawDonut(d) {
   shadow(d.x, d.y, 8);
   const X = sx(d.x, d.y), Y = sy(d.x, d.y, 6 + Math.sin(G.t * 0.1) * 2);
@@ -1877,8 +1943,9 @@ function drawPow(w) {
   ctx.save(); ctx.translate(X, Y); ctx.scale(sc, sc); ctx.rotate(-0.12);
   ctx.globalAlpha = Math.min(1, w.t / 12);
   const spike = (r1, r2, n, col) => { ctx.beginPath(); for (let i = 0; i < n * 2; i++) { const a = i / (n * 2) * Math.PI * 2, r = i % 2 ? r2 : r1 * (0.85 + ((i * 7) % 5) * 0.06); ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r * 0.8); } ctx.closePath(); ctx.fillStyle = col; ctx.fill(); };
-  spike(52, 26, 12, '#d42a2a'); spike(42, 22, 12, '#ffe14d');
-  txt(w.text || 'POW!', 0, 7, w.text ? 14 : 18, '#d42a2a', 'center', '#000');
+  const green = w.col === 'green';
+  spike(52, 26, 12, green ? '#1f7a3a' : '#d42a2a'); spike(42, 22, 12, green ? '#b8f07a' : '#ffe14d');
+  txt(w.text || 'POW!', 0, 7, w.text ? 14 : 18, green ? '#1f7a3a' : '#d42a2a', 'center', '#000');
   ctx.restore();
 }
 
@@ -2040,6 +2107,7 @@ function drawStreetScene() {
   }
   for (const d of decor) if (d.y + (d.hy || 0) > yA && d.y - (d.hy || 0) < yB) { const hx = d.hx || 6, hy = d.hy || 6; spr.push({ x0: d.x - hx, x1: d.x + hx, y0: d.y - hy, y1: d.y + hy, fn: () => drawObstacle(d) }); }
   for (const b of bundles) if (!b.taken && b.y > yA && b.y < yB) spr.push({ x0: b.x - 10, x1: b.x + 10, y0: b.y - 8, y1: b.y + 8, fn: () => drawBundle(b) });
+  for (const b of bibles) if (!b.taken && b.y > yA && b.y < yB) spr.push({ x0: b.x - 8, x1: b.x + 8, y0: b.y - 6, y1: b.y + 6, fn: () => drawBible(b) });
   for (const d of donuts) if (!d.taken && d.y > yA && d.y < yB) spr.push({ x0: d.x - 8, x1: d.x + 8, y0: d.y - 6, y1: d.y + 6, fn: () => drawDonut(d) });
   for (const m of mags) if (!m.dead && m.y > yA && m.y < yB) spr.push({ x0: m.x - 3, x1: m.x + 3, y0: m.y - 3, y1: m.y + 3, fn: () => drawMag(m) });
   if (END < yB + 400) spr.push({ x0: -520, x1: 236, y0: END, y1: END + 520, fn: drawKHExterior });
@@ -2049,6 +2117,7 @@ function drawStreetScene() {
   for (const a of angels) drawAngel(a);
   for (const o of obs) if (!o.gone && o.act && o.y > yA && o.y < yB) { labelDraw(o, o.h + 22); bubbleDraw(o, o.h + 14); }
   for (const w of pows) drawPow(w);
+  bubbleDraw(P, 76);
 }
 
 function drawSorted(spr) {
@@ -2169,6 +2238,7 @@ function drawHallScene() {
   box(232, 244, Math.max(yA, -300), Math.min(yB, HALL_LEN + 300), 0, 12, '#5a3a22', '#4a2f1a', '#3a2412');
   for (const o of obs) if (!o.gone && o.act && o.y > yA && o.y < yB) { labelDraw(o, o.h + 22); bubbleDraw(o, o.h + 14); }
   for (const w of pows) drawPow(w);
+  bubbleDraw(P, 76);
 }
 
 function drawFx() {
@@ -2206,7 +2276,9 @@ function drawHUD() {
       let c = '#3a3550';
       if (h.route) c = h.damaged ? '#d84343' : h.delivered ? '#5fd36b' : '#f2d36b';
       else if (h.interest) c = '#7ab0ff';
+      if (h.dnc) c = '#d84343';
       ctx.fillStyle = c; ctx.fillRect(rx + i * 9, 18, 7, 7);
+      if (h.dnc || h.damaged) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(rx + i * 9 + 1, 19); ctx.lineTo(rx + i * 9 + 6, 24); ctx.moveTo(rx + i * 9 + 6, 19); ctx.lineTo(rx + i * 9 + 1, 24); ctx.stroke(); }
     });
     const pi = Math.floor((P.y - START) / LOT);
     if (pi >= 0 && pi < NL) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(rx + pi * 9 - 1, 17, 9, 9); }
@@ -2223,8 +2295,9 @@ function drawHUD() {
   if (G.mags === 0) txt('EMPTY', mx, 25, 7, '#ff6b6b', 'left', false);
   // lives
   txt('LIVES', W - 52, 13, 7, '#9a8fae', 'left', false);
-  for (let i = 0; i < G.lives; i++) {
-    const lx = W - 50 + i * 14, ly = 24;
+  if (G.lives > 3) txt('x' + G.lives, W - 12, 27, 7, '#8ef0a0', 'center', false);
+  for (let i = 0; i < Math.min(3, G.lives); i++) {
+    const lx = W - (G.lives > 3 ? 62 : 52) + i * 12, ly = 24;
     ctx.fillStyle = '#f1c27d'; ctx.beginPath(); ctx.arc(lx + 4, ly - 2, 3.5, 0, 7); ctx.fill();
     ctx.fillStyle = '#5a3a1e'; ctx.beginPath(); ctx.arc(lx + 4, ly - 3, 3.7, Math.PI, 0); ctx.fill();
     ctx.fillStyle = '#c8262d'; ctx.fillRect(lx + 3.4, ly + 1.5, 1.4, 3);
@@ -2330,12 +2403,14 @@ function drawDayIntro() {
     ctx.fillStyle = h.route ? h.wall : '#3a3a48'; ctx.fillRect(x, by + 12, 22, 22);
     ctx.fillStyle = h.route ? h.roof : '#25252f'; ctx.beginPath(); ctx.moveTo(x - 3, by + 13); ctx.lineTo(x + 11, by); ctx.lineTo(x + 25, by + 13); ctx.fill();
     ctx.fillStyle = h.route ? '#ffe9a0' : '#20202a'; ctx.fillRect(x + 4, by + 18, 5, 5); ctx.fillRect(x + 13, by + 18, 5, 5);
+    if (h.dnc) { ctx.strokeStyle = '#e04040'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x, by + 4); ctx.lineTo(x + 22, by + 34); ctx.moveTo(x + 22, by + 4); ctx.lineTo(x, by + 34); ctx.stroke(); }
   });
-  const n = houses.filter(h => h.route).length;
-  txt(`ON YOUR ROUTE: ${n} HOUSES`, W / 2, 268, 10, '#fff', 'center');
+  const n = houses.filter(h => h.route).length, nd = houses.filter(h => h.dnc).length;
+  txt(`RETURN VISITS ON YOUR ROUTE: ${n}`, W / 2, 268, 10, '#fff', 'center');
+  if (nd) txt(`DO NOT CALLS: ${nd}`, W / 2, 284, 7, '#ff6b6b', 'center');
   const tips = [
-    'Lit-up houses take the magazines. Dark ones are "not interested."',
-    'Mailbox: 250. Porch: 100. A window on your route: cancelled.',
+    'Lit-up houses are your RVs. Deliver and they stay on the route.',
+    'Smash an RV\'s window and they become a DO NOT CALL. For good.',
     'Porch of a dark house: new interest. Their mailbox? It breaks.',
     'Magazines break windows, pots, lights and windshields. On your route, that cancels them.',
     'Find a donut for a sugar rush. Dogs hate that.',
@@ -2380,18 +2455,19 @@ function drawReport() {
     txt(String(v), cx + cw / 2, y0 + 112, 11, '#1f3c9a', 'center', false);
   });
   const lines = [
-    ['Delivered to route houses', `${st.delivered}`],
+    ['Return visits made', `${st.delivered}`],
     ['  ...of those, in the mailbox', `${st.mail}`],
     ['New interests found', `${st.interest}`],
     ['Windows broken', `${st.windows}`],
     ['Magazines handed out at the hall', `${st.hallHits}`],
     ['Platform bonus', st.hallBonus ? `+${st.hallBonus}` : '-'],
     ['Perfect route bonus', r.perfect ? `+${r.perfectBonus}` : '-'],
-    ['Cancelled', `${r.lost}`],
-    ['Joining your route tomorrow', `${r.joined}`],
+    ['RVs missed (dropped)', `${r.lost}`],
+    ['New Do Not Calls', `${r.newDnc}${r.dncTotal ? '  (total ' + r.dncTotal + ')' : ''}`],
+    ['New RVs joining tomorrow', `${r.joined}`],
   ];
   lines.forEach(([a, b], i) => {
-    const y = y0 + 144 + i * 15;
+    const y = y0 + 142 + i * 13.5;
     txt(a, x0 + 24, y, 6.5, '#3a2f4a', 'left', false);
     txt(b, x0 + pw - 24, y, 7, '#1f3c9a', 'right', false);
     ctx.strokeStyle = 'rgba(122,106,138,.35)'; ctx.beginPath(); ctx.moveTo(x0 + 22, y + 4); ctx.lineTo(x0 + pw - 22, y + 4); ctx.stroke();
@@ -2470,7 +2546,7 @@ if (document.fonts && document.fonts.load) Promise.all([document.fonts.load(`10p
 setTimeout(() => cv.focus(), 50);
 
 // test hook
-window.__MRB = { mk, G, P, get houses() { return houses; }, get obs() { return obs; }, get people() { return people; }, enterHall, finishDay, beginStreet, startGame, endHall, keys, pressed };
+window.__MRB = { get bibles() { return bibles; }, mk, G, P, get houses() { return houses; }, get obs() { return obs; }, get people() { return people; }, enterHall, finishDay, beginStreet, startGame, endHall, keys, pressed };
 })();
 </script>
 </body>
