@@ -1,5 +1,7 @@
 # The ACME Cartoon-O-Matic 4000
 
+**Live:** https://brandon-hatch.com/cartoon-o-matic/
+
 A ridiculously elaborate machine for deciding which cartoon to watch next
 from **Looney Tunes Golden Collection Volumes 1–4** on DVD (Region 1).
 
@@ -15,7 +17,7 @@ The Film Fan
 You need Node.js 18 or newer.
 
 ```bash
-cd cartoon-o-matic
+cd _cartoon-o-matic-src
 npm install
 npm run dev          # http://localhost:5173 (add --host to open it from an iPad on the same Wi-Fi)
 ```
@@ -23,8 +25,8 @@ npm run dev          # http://localhost:5173 (add --host to open it from an iPad
 To build a static copy:
 
 ```bash
-npm run build        # type-checks, then writes dist/
-npm run preview      # serves dist/ at http://localhost:4173
+npm run build        # type-checks, then writes the site to ../cartoon-o-matic/
+npm run preview      # serves that build at http://localhost:4173
 ```
 
 There is no backend, no API key and no account. Fonts and data are bundled,
@@ -128,3 +130,9 @@ The other buttons:
   default (calm mode skips the spin animation).
 - This is a fan-made companion and is not affiliated with Warner Bros. All
   illustrations are original CSS/SVG.
+
+## Publishing
+
+The source lives in `_cartoon-o-matic-src/`. `npm run build` writes the static
+site to `cartoon-o-matic/` at the repository root, which GitHub Pages serves at
+`/cartoon-o-matic/`. Commit both folders and push to `main` to publish.

@@ -6,6 +6,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: './',
   plugins: [react()],
+  // Builds straight into the site folder served at /cartoon-o-matic/.
+  // (This source folder starts with "_" so GitHub Pages' Jekyll skips it.)
+  build: { outDir: '../cartoon-o-matic', emptyOutDir: true },
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
